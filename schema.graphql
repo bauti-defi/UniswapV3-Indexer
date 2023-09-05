@@ -1,0 +1,56 @@
+type Block @entity {
+    id: ID!
+    number: Int! @index
+    timestamp: DateTime! @index
+}
+
+type Transaction @entity {
+    id: ID!
+    blockNumber: Int @index
+    blockTimestamp: DateTime! @index
+    hash: String! @index
+    to: String @index
+    from: String @index
+    status: Int @index
+}
+
+type ContractEventIncreaseLiquidity @entity {
+    id: ID!
+    blockNumber: Int! @index
+    blockTimestamp: DateTime! @index
+    transactionHash: String! @index
+    contract: String! @index
+    eventName: String! @index
+    tokenId: BigInt! @index
+    liquidity: BigInt!
+    amount0: BigInt!
+    amount1: BigInt!
+}
+
+type ContractFunctionMint @entity {
+    id: ID!
+    blockNumber: Int! @index
+    blockTimestamp: DateTime! @index
+    transactionHash: String! @index
+    contract: String! @index
+    functionName: String! @index
+    functionValue: BigInt
+    functionSuccess: Boolean @index
+}
+
+type ContractFunctionMintParameters @entity {
+    id: ID!
+    transactionHash: String! @index
+    token0: String! @index
+    token1: String! @index
+    fee: Int! @index
+    tickLower: Int!
+    tickUpper: Int!
+    amount0Desired: BigInt!
+    amount1Desired: BigInt!
+    amount0Min: BigInt!
+    amount1Min: BigInt!
+    recipient: String @index
+    deadline: BigInt!
+}
+
