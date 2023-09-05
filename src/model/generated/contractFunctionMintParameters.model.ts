@@ -12,6 +12,10 @@ export class ContractFunctionMintParameters {
 
     @Index_()
     @Column_("text", {nullable: false})
+    pool!: string
+
+    @Index_()
+    @Column_("text", {nullable: false})
     token0!: string
 
     @Index_()

@@ -8,9 +8,22 @@ import {Log, Transaction} from '../processor'
 import { ContractFunctionMintParameters } from '../model/generated/contractFunctionMintParameters.model'
 import { ContractFunctionDecreaseLiquidity } from '../model/generated/contractFunctionDecreaseLiquidity.model'
 import { ContractFunctionDecreaseLiquidityParameters } from '../model/generated/contractFunctionDecreaseLiquidityParameters.model'
+import { FeeAmount, computePoolAddress } from '@uniswap/v3-sdk'
+import { Token } from '@uniswap/sdk-core'
 
 const address = '0xc36442b4a4522e871399cd717abdd847ab11fe88'
+const uniswapFactoryAddress = '0x1F98431c8aD98523631AE4a59f267346ea31F984'
 
+
+const calculatePoolAddress = (token0: string, token1: string, fee: unknown) => {
+    return computePoolAddress({
+        factoryAddress: uniswapFactoryAddress,
+        // the only value that MUST be correct here is the token address, rest is just spoofed data
+        tokenA: new Token(1, token0, 6, 'placeholder-symbol', 'token0', false),
+        tokenB: new Token(1, token1, 6, 'placeholder-symbol', 'token1', false),
+        fee: fee as FeeAmount,
+    })
+}
 
 export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
     try {
@@ -83,6 +96,7 @@ export function parseFunction(ctx: DataHandlerContext<Store>, transaction: Trans
                 EntityBuffer.add(
                     new ContractFunctionMintParameters({
                         id: transaction.id,
+                        pool: calculatePoolAddress(params[0], params[1], params[2]),
                         token0: params[0],
                         token1: params[1],
                         fee: params[2],

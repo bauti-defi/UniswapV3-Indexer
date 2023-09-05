@@ -1,5 +1,5 @@
-module.exports = class Data1693952712773 {
-    name = 'Data1693952712773'
+module.exports = class Data1693954525248 {
+    name = 'Data1693954525248'
 
     async up(db) {
         await db.query(`CREATE TABLE "block" ("id" character varying NOT NULL, "number" integer NOT NULL, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, CONSTRAINT "PK_d0925763efb591c2e2ffb267572" PRIMARY KEY ("id"))`)
@@ -26,7 +26,8 @@ module.exports = class Data1693952712773 {
         await db.query(`CREATE INDEX "IDX_be999b9be875d6bf3827add168" ON "contract_function_mint" ("contract") `)
         await db.query(`CREATE INDEX "IDX_2f9005cad4202107b3d6c28e8a" ON "contract_function_mint" ("function_name") `)
         await db.query(`CREATE INDEX "IDX_2bed0936043273d1021f80ca5b" ON "contract_function_mint" ("function_success") `)
-        await db.query(`CREATE TABLE "contract_function_mint_parameters" ("id" character varying NOT NULL, "token0" text NOT NULL, "token1" text NOT NULL, "fee" integer NOT NULL, "tick_lower" integer NOT NULL, "tick_upper" integer NOT NULL, "amount0_desired" numeric NOT NULL, "amount1_desired" numeric NOT NULL, "amount0_min" numeric NOT NULL, "amount1_min" numeric NOT NULL, "recipient" text, "deadline" numeric NOT NULL, CONSTRAINT "PK_c51a86495c62977167c19572318" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE TABLE "contract_function_mint_parameters" ("id" character varying NOT NULL, "pool" text NOT NULL, "token0" text NOT NULL, "token1" text NOT NULL, "fee" integer NOT NULL, "tick_lower" integer NOT NULL, "tick_upper" integer NOT NULL, "amount0_desired" numeric NOT NULL, "amount1_desired" numeric NOT NULL, "amount0_min" numeric NOT NULL, "amount1_min" numeric NOT NULL, "recipient" text, "deadline" numeric NOT NULL, CONSTRAINT "PK_c51a86495c62977167c19572318" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE INDEX "IDX_6ad21c517298be00e74bca3f4a" ON "contract_function_mint_parameters" ("pool") `)
         await db.query(`CREATE INDEX "IDX_5a9346b9de989fe540f60b8f48" ON "contract_function_mint_parameters" ("token0") `)
         await db.query(`CREATE INDEX "IDX_0674db74c407ff3eb15c183c3a" ON "contract_function_mint_parameters" ("token1") `)
         await db.query(`CREATE INDEX "IDX_986397bc95d0dba834defd002a" ON "contract_function_mint_parameters" ("fee") `)
@@ -75,6 +76,7 @@ module.exports = class Data1693952712773 {
         await db.query(`DROP INDEX "public"."IDX_2f9005cad4202107b3d6c28e8a"`)
         await db.query(`DROP INDEX "public"."IDX_2bed0936043273d1021f80ca5b"`)
         await db.query(`DROP TABLE "contract_function_mint_parameters"`)
+        await db.query(`DROP INDEX "public"."IDX_6ad21c517298be00e74bca3f4a"`)
         await db.query(`DROP INDEX "public"."IDX_5a9346b9de989fe540f60b8f48"`)
         await db.query(`DROP INDEX "public"."IDX_0674db74c407ff3eb15c183c3a"`)
         await db.query(`DROP INDEX "public"."IDX_986397bc95d0dba834defd002a"`)
