@@ -12,10 +12,6 @@ export class ContractFunctionMintParameters {
 
     @Index_()
     @Column_("text", {nullable: false})
-    transactionHash!: string
-
-    @Index_()
-    @Column_("text", {nullable: false})
     token0!: string
 
     @Index_()

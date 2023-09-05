@@ -1,5 +1,5 @@
-module.exports = class Data1693930046581 {
-    name = 'Data1693930046581'
+module.exports = class Data1693951248389 {
+    name = 'Data1693951248389'
 
     async up(db) {
         await db.query(`CREATE TABLE "block" ("id" character varying NOT NULL, "number" integer NOT NULL, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, CONSTRAINT "PK_d0925763efb591c2e2ffb267572" PRIMARY KEY ("id"))`)
@@ -26,12 +26,18 @@ module.exports = class Data1693930046581 {
         await db.query(`CREATE INDEX "IDX_be999b9be875d6bf3827add168" ON "contract_function_mint" ("contract") `)
         await db.query(`CREATE INDEX "IDX_2f9005cad4202107b3d6c28e8a" ON "contract_function_mint" ("function_name") `)
         await db.query(`CREATE INDEX "IDX_2bed0936043273d1021f80ca5b" ON "contract_function_mint" ("function_success") `)
-        await db.query(`CREATE TABLE "contract_function_mint_parameters" ("id" character varying NOT NULL, "transaction_hash" text NOT NULL, "token0" text NOT NULL, "token1" text NOT NULL, "fee" integer NOT NULL, "tick_lower" integer NOT NULL, "tick_upper" integer NOT NULL, "amount0_desired" numeric NOT NULL, "amount1_desired" numeric NOT NULL, "amount0_min" numeric NOT NULL, "amount1_min" numeric NOT NULL, "recipient" text, "deadline" numeric NOT NULL, CONSTRAINT "PK_c51a86495c62977167c19572318" PRIMARY KEY ("id"))`)
-        await db.query(`CREATE INDEX "IDX_796ac3e8d7c3fa3ca8fae65f51" ON "contract_function_mint_parameters" ("transaction_hash") `)
+        await db.query(`CREATE TABLE "contract_function_mint_parameters" ("id" character varying NOT NULL, "token0" text NOT NULL, "token1" text NOT NULL, "fee" integer NOT NULL, "tick_lower" integer NOT NULL, "tick_upper" integer NOT NULL, "amount0_desired" numeric NOT NULL, "amount1_desired" numeric NOT NULL, "amount0_min" numeric NOT NULL, "amount1_min" numeric NOT NULL, "recipient" text, "deadline" numeric NOT NULL, CONSTRAINT "PK_c51a86495c62977167c19572318" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_5a9346b9de989fe540f60b8f48" ON "contract_function_mint_parameters" ("token0") `)
         await db.query(`CREATE INDEX "IDX_0674db74c407ff3eb15c183c3a" ON "contract_function_mint_parameters" ("token1") `)
         await db.query(`CREATE INDEX "IDX_986397bc95d0dba834defd002a" ON "contract_function_mint_parameters" ("fee") `)
         await db.query(`CREATE INDEX "IDX_7d2921eb47d801a60139507ad0" ON "contract_function_mint_parameters" ("recipient") `)
+        await db.query(`CREATE TABLE "contract_event_decrease_liquidity" ("id" character varying NOT NULL, "block_number" integer NOT NULL, "block_timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "transaction_hash" text NOT NULL, "contract" text NOT NULL, "event_name" text NOT NULL, "token_id" numeric NOT NULL, "liquidity" numeric NOT NULL, "amount0" numeric NOT NULL, "amount1" numeric NOT NULL, CONSTRAINT "PK_265c4ce72fa990663f6507d1837" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE INDEX "IDX_44af23d66a421faf11aecb962c" ON "contract_event_decrease_liquidity" ("block_number") `)
+        await db.query(`CREATE INDEX "IDX_3dade9cb99e4e1e70a181433b2" ON "contract_event_decrease_liquidity" ("block_timestamp") `)
+        await db.query(`CREATE INDEX "IDX_16cc7c826b4df1717596e70a05" ON "contract_event_decrease_liquidity" ("transaction_hash") `)
+        await db.query(`CREATE INDEX "IDX_af6cd97a24d538d085c4da391e" ON "contract_event_decrease_liquidity" ("contract") `)
+        await db.query(`CREATE INDEX "IDX_a46df32782ba7a3fd94850956c" ON "contract_event_decrease_liquidity" ("event_name") `)
+        await db.query(`CREATE INDEX "IDX_9bd39ab91f145b6430ebe4e6ec" ON "contract_event_decrease_liquidity" ("token_id") `)
     }
 
     async down(db) {
@@ -60,10 +66,16 @@ module.exports = class Data1693930046581 {
         await db.query(`DROP INDEX "public"."IDX_2f9005cad4202107b3d6c28e8a"`)
         await db.query(`DROP INDEX "public"."IDX_2bed0936043273d1021f80ca5b"`)
         await db.query(`DROP TABLE "contract_function_mint_parameters"`)
-        await db.query(`DROP INDEX "public"."IDX_796ac3e8d7c3fa3ca8fae65f51"`)
         await db.query(`DROP INDEX "public"."IDX_5a9346b9de989fe540f60b8f48"`)
         await db.query(`DROP INDEX "public"."IDX_0674db74c407ff3eb15c183c3a"`)
         await db.query(`DROP INDEX "public"."IDX_986397bc95d0dba834defd002a"`)
         await db.query(`DROP INDEX "public"."IDX_7d2921eb47d801a60139507ad0"`)
+        await db.query(`DROP TABLE "contract_event_decrease_liquidity"`)
+        await db.query(`DROP INDEX "public"."IDX_44af23d66a421faf11aecb962c"`)
+        await db.query(`DROP INDEX "public"."IDX_3dade9cb99e4e1e70a181433b2"`)
+        await db.query(`DROP INDEX "public"."IDX_16cc7c826b4df1717596e70a05"`)
+        await db.query(`DROP INDEX "public"."IDX_af6cd97a24d538d085c4da391e"`)
+        await db.query(`DROP INDEX "public"."IDX_a46df32782ba7a3fd94850956c"`)
+        await db.query(`DROP INDEX "public"."IDX_9bd39ab91f145b6430ebe4e6ec"`)
     }
 }

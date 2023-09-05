@@ -40,7 +40,6 @@ type ContractFunctionMint @entity {
 
 type ContractFunctionMintParameters @entity {
     id: ID!
-    transactionHash: String! @index
     token0: String! @index
     token1: String! @index
     fee: Int! @index
@@ -52,5 +51,18 @@ type ContractFunctionMintParameters @entity {
     amount1Min: BigInt!
     recipient: String @index
     deadline: BigInt!
+}
+
+type ContractEventDecreaseLiquidity @entity {
+    id: ID!
+    blockNumber: Int! @index
+    blockTimestamp: DateTime! @index
+    transactionHash: String! @index
+    contract: String! @index
+    eventName: String! @index
+    tokenId: BigInt! @index
+    liquidity: BigInt!
+    amount0: BigInt!
+    amount1: BigInt!
 }
 

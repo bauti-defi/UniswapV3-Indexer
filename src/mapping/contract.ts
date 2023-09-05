@@ -2,7 +2,7 @@ import {DataHandlerContext} from '@subsquid/evm-processor'
 import {toJSON} from '@subsquid/util-internal-json'
 import {Store} from '../db'
 import {EntityBuffer} from '../entityBuffer'
-import {ContractEventIncreaseLiquidity, ContractFunctionMint} from '../model'
+import {ContractEventDecreaseLiquidity, ContractEventIncreaseLiquidity, ContractFunctionMint} from '../model'
 import * as spec from '../abi/0xc36442b4a4522e871399cd717abdd847ab11fe88'
 import {Log, Transaction} from '../processor'
 import { ContractFunctionMintParameters } from '../model/generated/contractFunctionMintParameters.model'
@@ -23,6 +23,24 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                         transactionHash: log.transactionHash,
                         contract: log.address,
                         eventName: 'IncreaseLiquidity',
+                        tokenId: e[0],
+                        liquidity: e[1],
+                        amount0: e[2],
+                        amount1: e[3],
+                    })
+                )
+                break
+            }
+            case spec.events['DecreaseLiquidity'].topic: {
+                let e = spec.events['DecreaseLiquidity'].decode(log)
+                EntityBuffer.add(
+                    new ContractEventDecreaseLiquidity({
+                        id: log.id,
+                        blockNumber: log.block.height,
+                        blockTimestamp: new Date(log.block.timestamp),
+                        transactionHash: log.transactionHash,
+                        contract: log.address,
+                        eventName: 'DecreaseLiquidity',
                         tokenId: e[0],
                         liquidity: e[1],
                         amount0: e[2],
@@ -64,7 +82,6 @@ export function parseFunction(ctx: DataHandlerContext<Store>, transaction: Trans
                     EntityBuffer.add(
                         new ContractFunctionMintParameters({
                             id: transaction.id,
-                            transactionHash: transaction.hash,
                             token0: params[0],
                             token1: params[1],
                             fee: params[2],

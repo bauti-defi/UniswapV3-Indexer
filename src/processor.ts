@@ -24,6 +24,7 @@ export const processor = new EvmBatchProcessor()
         address: ['0xc36442b4a4522e871399cd717abdd847ab11fe88'],
         topic0: [
             contractAbi.events['IncreaseLiquidity'].topic,
+            contractAbi.events['DecreaseLiquidity'].topic,
         ],
         range: {
             from: 121460117,
