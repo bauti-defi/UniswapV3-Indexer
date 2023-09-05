@@ -96,5 +96,17 @@ type ContractFunctionExactInputSingle @entity {
     functionName: String! @index
     functionValue: BigInt
     functionSuccess: Boolean @index
-    params: JSON!
+}
+
+type ContractFunctionExactInputSingleParams @entity {
+    id: ID!
+    pool: String! @index
+    tokenIn: String! @index
+    tokenOut: String! @index
+    fee: Int! @index
+    recipient: String @index
+    deadline: BigInt!
+    amountIn: BigInt!
+    amountOutMinimum: BigInt!
+    sqrtPriceLimitX96: BigInt!
 }

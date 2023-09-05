@@ -5,6 +5,8 @@ import {EntityBuffer} from '../entityBuffer'
 import {ContractFunctionExactInputSingle} from '../model'
 import * as spec from '../abi/0xe592427a0aece92de3edee1f18e0157c05861564'
 import {Log, Transaction} from '../processor'
+import { ContractFunctionExactInputSingleParams } from '../model/generated/contractFunctionExactInputSingleParams.model'
+import { calculatePoolAddress } from './utils'
 
 const address = '0xe592427a0aece92de3edee1f18e0157c05861564'
 
@@ -33,8 +35,24 @@ export function parseFunction(ctx: DataHandlerContext<Store>, transaction: Trans
                         contract: transaction.to!,
                         functionName: 'exactInputSingle',
                         functionValue: transaction.value,
-                        functionSuccess: transaction.status != null ? Boolean(transaction.status) : undefined,
-                        params: toJSON(f[0]),
+                        functionSuccess: transaction.status != null ? Boolean(transaction.status) : undefined
+                    })
+                )
+
+                const params = toJSON(f[0])
+
+                EntityBuffer.add(
+                    new ContractFunctionExactInputSingleParams({
+                        id: transaction.id,
+                        pool: calculatePoolAddress(params[0], params[1], params[2]),
+                        tokenIn: params[0],
+                        tokenOut: params[1],
+                        fee: params[2],
+                        recipient: params[3],
+                        deadline: params[4],
+                        amountIn: params[5],
+                        amountOutMinimum: params[6],
+                        sqrtPriceLimitX96: params[7],
                     })
                 )
                 break

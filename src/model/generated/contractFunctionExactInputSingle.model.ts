@@ -36,7 +36,4 @@ export class ContractFunctionExactInputSingle {
     @Index_()
     @Column_("bool", {nullable: true})
     functionSuccess!: boolean | undefined | null
-
-    @Column_("jsonb", {nullable: false})
-    params!: unknown
 }

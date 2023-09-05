@@ -1,5 +1,5 @@
-module.exports = class Data1693955776339 {
-    name = 'Data1693955776339'
+module.exports = class Data1693956191985 {
+    name = 'Data1693956191985'
 
     async up(db) {
         await db.query(`CREATE TABLE "block" ("id" character varying NOT NULL, "number" integer NOT NULL, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, CONSTRAINT "PK_d0925763efb591c2e2ffb267572" PRIMARY KEY ("id"))`)
@@ -48,13 +48,19 @@ module.exports = class Data1693955776339 {
         await db.query(`CREATE INDEX "IDX_88ba0f4d105864d2b5ba1333ca" ON "contract_function_decrease_liquidity" ("function_success") `)
         await db.query(`CREATE TABLE "contract_function_decrease_liquidity_parameters" ("id" character varying NOT NULL, "token_id" numeric NOT NULL, "liquidity" numeric NOT NULL, "amount0_min" numeric NOT NULL, "amount1_min" numeric NOT NULL, "deadline" numeric NOT NULL, CONSTRAINT "PK_365894f0692af7596e14c888603" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_dd0dfa03b60b75808ba47420df" ON "contract_function_decrease_liquidity_parameters" ("token_id") `)
-        await db.query(`CREATE TABLE "contract_function_exact_input_single" ("id" character varying NOT NULL, "block_number" integer NOT NULL, "block_timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "transaction_hash" text NOT NULL, "contract" text NOT NULL, "function_name" text NOT NULL, "function_value" numeric, "function_success" boolean, "params" jsonb NOT NULL, CONSTRAINT "PK_98a1fd22d17815b370b6b5ab66d" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE TABLE "contract_function_exact_input_single" ("id" character varying NOT NULL, "block_number" integer NOT NULL, "block_timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "transaction_hash" text NOT NULL, "contract" text NOT NULL, "function_name" text NOT NULL, "function_value" numeric, "function_success" boolean, CONSTRAINT "PK_98a1fd22d17815b370b6b5ab66d" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_e6b5b7cfdf4c988952bbf44b92" ON "contract_function_exact_input_single" ("block_number") `)
         await db.query(`CREATE INDEX "IDX_a1fc9717035d3f5f28718aa476" ON "contract_function_exact_input_single" ("block_timestamp") `)
         await db.query(`CREATE INDEX "IDX_e124a4c33a4e8eae3a5c594160" ON "contract_function_exact_input_single" ("transaction_hash") `)
         await db.query(`CREATE INDEX "IDX_0b5b7ec676e44a4371fb2f1352" ON "contract_function_exact_input_single" ("contract") `)
         await db.query(`CREATE INDEX "IDX_fa853b7ef2095fb7b4202ff20f" ON "contract_function_exact_input_single" ("function_name") `)
         await db.query(`CREATE INDEX "IDX_e05beeeae0d8b079915dc0a3d0" ON "contract_function_exact_input_single" ("function_success") `)
+        await db.query(`CREATE TABLE "contract_function_exact_input_single_params" ("id" character varying NOT NULL, "pool" text NOT NULL, "token_in" text NOT NULL, "token_out" text NOT NULL, "fee" integer NOT NULL, "recipient" text, "deadline" numeric NOT NULL, "amount_in" numeric NOT NULL, "amount_out_minimum" numeric NOT NULL, "sqrt_price_limit_x96" numeric NOT NULL, CONSTRAINT "PK_4e8328b6cfb29952e073c04396b" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE INDEX "IDX_ae3a2f859cd174d6317f3038fe" ON "contract_function_exact_input_single_params" ("pool") `)
+        await db.query(`CREATE INDEX "IDX_c0f06744c4b1fad9e9975ceb40" ON "contract_function_exact_input_single_params" ("token_in") `)
+        await db.query(`CREATE INDEX "IDX_74c7a731623ab1005a74fc3306" ON "contract_function_exact_input_single_params" ("token_out") `)
+        await db.query(`CREATE INDEX "IDX_9bd1a2f179cd659e4d1ea3f56f" ON "contract_function_exact_input_single_params" ("fee") `)
+        await db.query(`CREATE INDEX "IDX_d2deb3d8aaf37c8ac27d48ad7b" ON "contract_function_exact_input_single_params" ("recipient") `)
     }
 
     async down(db) {
@@ -111,5 +117,11 @@ module.exports = class Data1693955776339 {
         await db.query(`DROP INDEX "public"."IDX_0b5b7ec676e44a4371fb2f1352"`)
         await db.query(`DROP INDEX "public"."IDX_fa853b7ef2095fb7b4202ff20f"`)
         await db.query(`DROP INDEX "public"."IDX_e05beeeae0d8b079915dc0a3d0"`)
+        await db.query(`DROP TABLE "contract_function_exact_input_single_params"`)
+        await db.query(`DROP INDEX "public"."IDX_ae3a2f859cd174d6317f3038fe"`)
+        await db.query(`DROP INDEX "public"."IDX_c0f06744c4b1fad9e9975ceb40"`)
+        await db.query(`DROP INDEX "public"."IDX_74c7a731623ab1005a74fc3306"`)
+        await db.query(`DROP INDEX "public"."IDX_9bd1a2f179cd659e4d1ea3f56f"`)
+        await db.query(`DROP INDEX "public"."IDX_d2deb3d8aaf37c8ac27d48ad7b"`)
     }
 }
