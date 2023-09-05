@@ -86,3 +86,15 @@ type ContractFunctionDecreaseLiquidityParameters @entity {
     amount1Min: BigInt!
     deadline: BigInt!
 }
+
+type ContractFunctionExactInputSingle @entity {
+    id: ID!
+    blockNumber: Int! @index
+    blockTimestamp: DateTime! @index
+    transactionHash: String! @index
+    contract: String! @index
+    functionName: String! @index
+    functionValue: BigInt
+    functionSuccess: Boolean @index
+    params: JSON!
+}

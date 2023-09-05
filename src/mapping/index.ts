@@ -1,1 +1,2 @@
-export * as contract from './contract'
+export * as positionManagerContract from './positionManagerContract'
+export * as swapRouterContract from './swapRouterContract'

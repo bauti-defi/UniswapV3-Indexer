@@ -1,6 +1,7 @@
 import {EvmBatchProcessor, EvmBatchProcessorFields, BlockHeader, Log as _Log, Transaction as _Transaction} from '@subsquid/evm-processor'
 import {lookupArchive} from '@subsquid/archive-registry'
-import * as contractAbi from './abi/0xc36442b4a4522e871399cd717abdd847ab11fe88'
+import * as positionManagerAbi from './abi/0xc36442b4a4522e871399cd717abdd847ab11fe88'
+import * as swapRouterAbi from './abi/0xe592427a0aece92de3edee1f18e0157c05861564'
 
 export const processor = new EvmBatchProcessor()
     .setDataSource({
@@ -23,19 +24,20 @@ export const processor = new EvmBatchProcessor()
     .addLog({
         address: ['0xc36442b4a4522e871399cd717abdd847ab11fe88'],
         topic0: [
-            contractAbi.events['IncreaseLiquidity'].topic,
-            contractAbi.events['DecreaseLiquidity'].topic,
+            positionManagerAbi.events['IncreaseLiquidity'].topic,
+            positionManagerAbi.events['DecreaseLiquidity'].topic,
         ],
         range: {
             from: 121460117,
         },
     })
     .addTransaction({
-        to: ['0xc36442b4a4522e871399cd717abdd847ab11fe88'],
+        to: ['0xc36442b4a4522e871399cd717abdd847ab11fe88', '0xe592427a0aece92de3edee1f18e0157c05861564'],
         sighash: [
-            contractAbi.functions['mint'].sighash,
-            contractAbi.functions['increaseLiquidity'].sighash,
-            contractAbi.functions['decreaseLiquidity'].sighash,
+            positionManagerAbi.functions['mint'].sighash,
+            positionManagerAbi.functions['increaseLiquidity'].sighash,
+            positionManagerAbi.functions['decreaseLiquidity'].sighash,
+            swapRouterAbi.functions['exactInputSingle'].sighash
         ],
         range: {
             from: 121460117,
