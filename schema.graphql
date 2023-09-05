@@ -66,3 +66,22 @@ type ContractEventDecreaseLiquidity @entity {
     amount1: BigInt!
 }
 
+type ContractFunctionDecreaseLiquidity @entity {
+    id: ID!
+    blockNumber: Int! @index
+    blockTimestamp: DateTime! @index
+    transactionHash: String! @index
+    contract: String! @index
+    functionName: String! @index
+    functionValue: BigInt
+    functionSuccess: Boolean @index
+}
+
+type ContractFunctionDecreaseLiquidityParameters @entity {
+    id: ID!
+    tokenId: BigInt! @index
+    liquidity: BigInt!
+    amount0Min: BigInt!
+    amount1Min: BigInt!
+    deadline: BigInt!
+}

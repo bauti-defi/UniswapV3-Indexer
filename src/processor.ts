@@ -34,6 +34,8 @@ export const processor = new EvmBatchProcessor()
         to: ['0xc36442b4a4522e871399cd717abdd847ab11fe88'],
         sighash: [
             contractAbi.functions['mint'].sighash,
+            contractAbi.functions['increaseLiquidity'].sighash,
+            contractAbi.functions['decreaseLiquidity'].sighash,
         ],
         range: {
             from: 121460117,
