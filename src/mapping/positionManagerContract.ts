@@ -5,3 +5,6 @@ export const isIncreaseLiquidity = (log: Log) => {
     return log.topics[0] === spec.events['IncreaseLiquidity'].topic
 }
 
+export const isDecreasePositionLiquidity = (log: Log) => {
+    return log.topics[0] === spec.events['DecreaseLiquidity'].topic
+}

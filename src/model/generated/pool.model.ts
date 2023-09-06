@@ -1,6 +1,7 @@
 import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, Index as Index_, OneToMany as OneToMany_} from "typeorm"
 import {Swap} from "./swap.model"
 import {MintPosition} from "./mintPosition.model"
+import {DecreasePositionLiquidity} from "./decreasePositionLiquidity.model"
 
 @Entity_()
 export class Pool {
@@ -36,4 +37,7 @@ export class Pool {
 
     @OneToMany_(() => MintPosition, e => e.pool)
     mintPositions!: MintPosition[]
+
+    @OneToMany_(() => DecreasePositionLiquidity, e => e.pool)
+    decreasePositionLiquidity!: DecreasePositionLiquidity[]
 }

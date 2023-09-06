@@ -1,17 +1,17 @@
 import {DataHandlerContext} from '@subsquid/evm-processor'
 import {Store} from '../db'
-import * as spec from "../abi/pool"
+import * as poolSpec from "../abi/pool"
 import {Log} from '../processor'
-import { BurnLiquidity, Swap, Transaction } from '../model'
-import { getPool, getPoolFromAddress } from '../pools'
+import { Swap, Transaction } from '../model'
+import { getPool } from '../pools'
 
 export const isSwap = (log: Log) => {
-    return log.topics[0] === spec.events['Swap'].topic
+    return log.topics[0] === poolSpec.events['Swap'].topic
 }
 
 export async function parseSwap(ctx: DataHandlerContext<Store>, log: Log, transaction: Transaction): Promise<Swap | undefined> {
     try {
-        const event = spec.events['Swap'].decode(log)
+        const event = poolSpec.events['Swap'].decode(log)
 
         return new Swap({
             id: log.id,
@@ -31,29 +31,9 @@ export async function parseSwap(ctx: DataHandlerContext<Store>, log: Log, transa
 }
 
 export const isPoolPositionMint = (log: Log) => {
-    return log.topics[0] === spec.events['Mint'].topic
+    return log.topics[0] === poolSpec.events['Mint'].topic
 }
 
 export const isLiquidityBurn = (log: Log) => {
-    return log.topics[0] === spec.events['Burn'].topic
-}
-
-export async function parseLiquidityBurn(ctx: DataHandlerContext<Store>, log: Log, transaction: Transaction): Promise<BurnLiquidity | undefined> {
-    try {
-        const [_owner, tickerLower, tickerUpper, amount, amount0, amount1] = spec.events['Burn'].decode(log)
-
-        return new BurnLiquidity({
-            id: log.id,
-            transaction,
-            pool: await getPool(log.address, ctx),
-            tickLower: tickerLower, 
-            tickUpper: tickerUpper,
-            amount0,
-            amount1,
-            liquidity: amount
-        })
-    }
-    catch (error) {
-        ctx.log.error({error, blockNumber: log.block.height, blockHash: log.block.hash, address: log.address}, `Unable to decode event "${log.topics[0]}"`)
-    }
+    return log.topics[0] === poolSpec.events['Burn'].topic
 }

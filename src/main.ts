@@ -1,19 +1,21 @@
-import {processor} from './processor'
-import {db, Store} from './db'
-import {Block, MintPosition, Pool, Swap, Transaction, BurnLiquidity} from './model'
+import {processor, Log} from './processor'
+import {db} from './db'
+import {Block, DecreasePositionLiquidity, MintPosition, Swap, Transaction} from './model'
 import {populatePoolsTable } from './pools'
-import { isLiquidityBurn, isPoolPositionMint, isSwap, parseLiquidityBurn, parseSwap } from './mapping/poolContract'
-import { isIncreaseLiquidity } from './mapping/positionManagerContract'
-import { Log } from '@subsquid/evm-processor'
-import { parseMint } from './mapping/positionMint'
-
+import { isLiquidityBurn, isPoolPositionMint, isSwap, parseSwap } from './mapping/poolContract'
+import { isDecreasePositionLiquidity, isIncreaseLiquidity } from './mapping/positionManagerContract'
+import { parseMint, parseLiquidityBurn } from './mapping/position'
+import Matcher from './matcher'
 
 type ExecutionContext = {
     blocks: Block[]
     transactions: Transaction[]
     swaps: Swap[]
     mints: MintPosition[]
-    liquidityBurn: BurnLiquidity[]
+    liquidityDecreases: DecreasePositionLiquidity[]
+
+    liquidityDecreaseEvents: Matcher<Log, Log>
+    mintEvents: Matcher<Log, Log>
     poolMintEventMap: Record<string, Log>
     increaseLiquidityEventMap: Record<string, Log>
 }
@@ -24,7 +26,9 @@ const newExecutionContext = (): ExecutionContext => {
         transactions: [],
         swaps: [],
         mints: [],
-        liquidityBurn: [],
+        liquidityDecreases: [],
+        liquidityDecreaseEvents: new Matcher(),
+        mintEvents: new Matcher(),
         poolMintEventMap: {},
         increaseLiquidityEventMap: {}
     }
@@ -41,7 +45,7 @@ processor.run(db, async (ctx) => {
         ctx.log.debug(`Pools table populated with pools of interest`);
     }
 
-    let {blocks, transactions, swaps, mints, liquidityBurn, poolMintEventMap, increaseLiquidityEventMap} = newExecutionContext();
+    let {blocks, transactions, swaps, mints, liquidityDecreaseEvents, poolMintEventMap, increaseLiquidityEventMap, liquidityDecreases, mintEvents} = newExecutionContext();
 
     for (let block of ctx.blocks) {
         const newBlock = new Block({
@@ -78,28 +82,29 @@ processor.run(db, async (ctx) => {
                 const swap = await parseSwap(ctx, log, transactions.find(t => t.hash === log.transactionHash)!)
                 swaps.push(swap!);
             } else if(isPoolPositionMint(log)){
-                poolMintEventMap[log.transactionHash] = log; // store for processing later
+                // poolMintEventMap[log.transactionHash] = log; // store for processing later
+                mintEvents.addLeft(log.transactionHash, log); // store for processing later
             } else if(isIncreaseLiquidity(log)){
-                increaseLiquidityEventMap[log.transactionHash] = log; // store for processing later
+                // increaseLiquidityEventMap[log.transactionHash] = log; // store for processing later
+                mintEvents.addRight(log.transactionHash, log); // store for processing later
             }else if(isLiquidityBurn(log)){
-                const burn = await parseLiquidityBurn(ctx, log, transactions.find(t => t.hash === log.transactionHash)!)
-                if(burn) liquidityBurn.push(burn);
+                liquidityDecreaseEvents.addLeft(log.transactionHash, log); // store for processing later
+            }else if(isDecreasePositionLiquidity(log)){
+                liquidityDecreaseEvents.addRight(log.transactionHash, log); // store for processing later
             }
         }
     }
 
-
     // lets process the position mint events
-    // position mints emit a pool mint event and an increase liquidity event, we need both
-    const unConsumedIncreaseLiquidityEvents: string[] = [] 
-    for(let increaseEvent of Object.values(increaseLiquidityEventMap)) {
-        const poolMintEvent = poolMintEventMap[increaseEvent.transaction?.hash!];
-        if(poolMintEvent) {
-            const mint = await parseMint(ctx, poolMintEvent, increaseEvent, transactions.find(t => t.hash === poolMintEvent.transaction?.hash)!)
-            if(mint) mints.push(mint);
-        } else {
-            unConsumedIncreaseLiquidityEvents.push(increaseEvent.transaction?.hash!);
-        }
+    for(let [txHash, poolMint, increase] of mintEvents.getMatchedEntries()) {
+        const mint = await parseMint(ctx, poolMint, increase, transactions.find(t => t.hash === txHash)!)
+        if(mint) mints.push(mint);
+    }
+
+    // lets process the liquidity burn events
+    for(let [txHash, burn, decrease] of liquidityDecreaseEvents.getMatchedEntries()) {
+        const decreaseLiquidity = await parseLiquidityBurn(ctx, burn, decrease, transactions.find(t => t.hash === txHash)!)
+        if(decreaseLiquidity) liquidityDecreases.push(decreaseLiquidity)
     }
 
     // TODO: lets process increase liquidity events that are not related to a mint
@@ -109,5 +114,5 @@ processor.run(db, async (ctx) => {
     await ctx.store.insert(transactions)
     await ctx.store.insert(swaps)
     await ctx.store.insert(mints)
-    await ctx.store.insert(liquidityBurn)
+    await ctx.store.insert(liquidityDecreases)
 })
