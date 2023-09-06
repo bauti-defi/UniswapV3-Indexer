@@ -1,17 +1,18 @@
 import {DataHandlerContext} from '@subsquid/evm-processor'
 import {Store} from '../db'
-import * as spec from "../abi/pool"
+import * as poolSpec from "../abi/pool"
+import * as managerSpec from "../abi/positionManager"
 import {Log} from '../processor'
-import { BurnLiquidity, Swap, Transaction } from '../model'
-import { getPool, getPoolFromAddress } from '../pools'
+import { DecreasePositionLiquidity, Swap, Transaction } from '../model'
+import { getPool } from '../pools'
 
 export const isSwap = (log: Log) => {
-    return log.topics[0] === spec.events['Swap'].topic
+    return log.topics[0] === poolSpec.events['Swap'].topic
 }
 
 export async function parseSwap(ctx: DataHandlerContext<Store>, log: Log, transaction: Transaction): Promise<Swap | undefined> {
     try {
-        const event = spec.events['Swap'].decode(log)
+        const event = poolSpec.events['Swap'].decode(log)
 
         return new Swap({
             id: log.id,
@@ -31,29 +32,33 @@ export async function parseSwap(ctx: DataHandlerContext<Store>, log: Log, transa
 }
 
 export const isPoolPositionMint = (log: Log) => {
-    return log.topics[0] === spec.events['Mint'].topic
+    return log.topics[0] === poolSpec.events['Mint'].topic
 }
 
 export const isLiquidityBurn = (log: Log) => {
-    return log.topics[0] === spec.events['Burn'].topic
+    return log.topics[0] === poolSpec.events['Burn'].topic
 }
 
-export async function parseLiquidityBurn(ctx: DataHandlerContext<Store>, log: Log, transaction: Transaction): Promise<BurnLiquidity | undefined> {
+export async function parseLiquidityBurn(ctx: DataHandlerContext<Store>, burnLog: Log, decreaseLog: Log, transaction: Transaction): Promise<DecreasePositionLiquidity | undefined> {
     try {
-        const [_owner, tickerLower, tickerUpper, amount, amount0, amount1] = spec.events['Burn'].decode(log)
+        const [_owner, tickerLower, tickerUpper, amount, amount0, amount1] = poolSpec.events['Burn'].decode(burnLog)
+        const [tokenId, _liquidity, _amount0, _amount1] = managerSpec.events['DecreaseLiquidity'].decode(decreaseLog)
 
-        return new BurnLiquidity({
-            id: log.id,
+        if(burnLog.transaction?.hash !== decreaseLog.transaction?.hash || burnLog.transaction?.hash !== transaction.hash) throw Error('Transaction hash is NOT the same for all logs')
+
+        return new DecreasePositionLiquidity({
+            id: burnLog.id,
             transaction,
-            pool: await getPool(log.address, ctx),
+            pool: await getPool(burnLog.address, ctx),
+            tokenId,
             tickLower: tickerLower, 
             tickUpper: tickerUpper,
             amount0,
             amount1,
-            liquidity: amount
+            liquidityDelta: amount
         })
     }
     catch (error) {
-        ctx.log.error({error, blockNumber: log.block.height, blockHash: log.block.hash, address: log.address}, `Unable to decode event "${log.topics[0]}"`)
+        ctx.log.error({error, blockNumber: burnLog.block.height, blockHash: burnLog.block.hash, address: burnLog.address}, `Unable to decode event "${burnLog.topics[0]}"`)
     }
 }

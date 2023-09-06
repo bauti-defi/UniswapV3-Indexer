@@ -57,7 +57,8 @@ export const processor = new EvmBatchProcessor()
     .addLog({
         address: [POSITION_MANAGER_ADDRESS],
         topic0: [
-            positionManagerAbi.events.IncreaseLiquidity.topic,
+            positionManagerAbi.events['IncreaseLiquidity'].topic,
+            positionManagerAbi.events['DecreaseLiquidity'].topic,
         ],
         transaction: true,
         range: {

@@ -1,19 +1,20 @@
-import {processor} from './processor'
-import {db, Store} from './db'
-import {Block, MintPosition, Pool, Swap, Transaction, BurnLiquidity} from './model'
+import {processor, Log} from './processor'
+import {db} from './db'
+import {Block, DecreasePositionLiquidity, MintPosition, Swap, Transaction} from './model'
 import {populatePoolsTable } from './pools'
 import { isLiquidityBurn, isPoolPositionMint, isSwap, parseLiquidityBurn, parseSwap } from './mapping/poolContract'
-import { isIncreaseLiquidity } from './mapping/positionManagerContract'
-import { Log } from '@subsquid/evm-processor'
-import { parseMint } from './mapping/positionMint'
-
+import { isDecreasePositionLiquidity, isIncreaseLiquidity } from './mapping/positionManagerContract'
+import { parseMint } from './mapping/position'
+import Matcher from './matcher'
 
 type ExecutionContext = {
     blocks: Block[]
     transactions: Transaction[]
     swaps: Swap[]
     mints: MintPosition[]
-    liquidityBurn: BurnLiquidity[]
+    burns: DecreasePositionLiquidity[]
+
+    burnEvents: Matcher<Log, Log>
     poolMintEventMap: Record<string, Log>
     increaseLiquidityEventMap: Record<string, Log>
 }
@@ -24,7 +25,8 @@ const newExecutionContext = (): ExecutionContext => {
         transactions: [],
         swaps: [],
         mints: [],
-        liquidityBurn: [],
+        burns: [],
+        burnEvents: new Matcher(),
         poolMintEventMap: {},
         increaseLiquidityEventMap: {}
     }
@@ -41,7 +43,7 @@ processor.run(db, async (ctx) => {
         ctx.log.debug(`Pools table populated with pools of interest`);
     }
 
-    let {blocks, transactions, swaps, mints, liquidityBurn, poolMintEventMap, increaseLiquidityEventMap} = newExecutionContext();
+    let {blocks, transactions, swaps, mints, burnEvents, poolMintEventMap, increaseLiquidityEventMap, burns} = newExecutionContext();
 
     for (let block of ctx.blocks) {
         const newBlock = new Block({
@@ -82,8 +84,9 @@ processor.run(db, async (ctx) => {
             } else if(isIncreaseLiquidity(log)){
                 increaseLiquidityEventMap[log.transactionHash] = log; // store for processing later
             }else if(isLiquidityBurn(log)){
-                const burn = await parseLiquidityBurn(ctx, log, transactions.find(t => t.hash === log.transactionHash)!)
-                if(burn) liquidityBurn.push(burn);
+                burnEvents.addLeft(log.transactionHash, log); // store for processing later
+            }else if(isDecreasePositionLiquidity(log)){
+                burnEvents.addRight(log.transactionHash, log); // store for processing later
             }
         }
     }
@@ -102,6 +105,16 @@ processor.run(db, async (ctx) => {
         }
     }
 
+    // lets process the liquidity burn events
+    for(let [txHash, burn, decrease] of burnEvents.getMatchedEntries()) {
+        if(burn && decrease) {
+            const decreaseLiquidity = await parseLiquidityBurn(ctx, burn, decrease, transactions.find(t => t.hash === txHash)!)
+            if(decreaseLiquidity) burns.push(decreaseLiquidity)
+        } else {
+            ctx.log.error(`Unable to find burn and decrease events for transaction ${txHash}`);
+        }
+    }
+
     // TODO: lets process increase liquidity events that are not related to a mint
 
     // save, order is important!
@@ -109,5 +122,5 @@ processor.run(db, async (ctx) => {
     await ctx.store.insert(transactions)
     await ctx.store.insert(swaps)
     await ctx.store.insert(mints)
-    await ctx.store.insert(liquidityBurn)
+    await ctx.store.insert(burns)
 })

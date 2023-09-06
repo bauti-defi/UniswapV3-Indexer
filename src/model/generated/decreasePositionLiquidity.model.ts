@@ -4,8 +4,8 @@ import {Transaction} from "./transaction.model"
 import {Pool} from "./pool.model"
 
 @Entity_()
-export class BurnLiquidity {
-    constructor(props?: Partial<BurnLiquidity>) {
+export class DecreasePositionLiquidity {
+    constructor(props?: Partial<DecreasePositionLiquidity>) {
         Object.assign(this, props)
     }
 
@@ -21,6 +21,10 @@ export class BurnLiquidity {
     pool!: Pool
 
     @Index_()
+    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
+    tokenId!: bigint
+
+    @Index_()
     @Column_("int4", {nullable: false})
     tickLower!: number
 
@@ -29,7 +33,7 @@ export class BurnLiquidity {
     tickUpper!: number
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-    liquidity!: bigint
+    liquidityDelta!: bigint
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     amount0!: bigint
