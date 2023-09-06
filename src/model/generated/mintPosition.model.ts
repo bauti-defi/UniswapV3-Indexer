@@ -42,7 +42,4 @@ export class MintPosition {
     @Index_()
     @Column_("text", {nullable: true})
     recipient!: string | undefined | null
-
-    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-    deadline!: bigint
 }

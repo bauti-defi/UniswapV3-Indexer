@@ -2,9 +2,11 @@ import {EvmBatchProcessor, EvmBatchProcessorFields, BlockHeader, Log as _Log, Tr
 import {lookupArchive} from '@subsquid/archive-registry'
 import * as poolFactoryAbi from './abi/poolFactory'
 import * as poolAbi from './abi/pool'
+import * as positionManagerAbi from './abi/positionManager'
 import { poolAddresses } from './pools'
 
 const POOL_FACTORY_ADDRESS = '0x1f98431c8ad98523631ae4a59f267346ea31f984'
+const POSITION_MANAGER_ADDRESS = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
 
 const withPoolCreationIndexing = (process: EvmBatchProcessor) => {
     return process.addLog({
@@ -44,6 +46,17 @@ export const processor = new EvmBatchProcessor()
         address: poolAddresses,
         topic0: [
             poolAbi.events['Swap'].topic,
+            poolAbi.events['Mint'].topic,
+        ],
+        transaction: true,
+        range: {
+            from: 121460117,
+        },
+    })
+    .addLog({
+        address: [POSITION_MANAGER_ADDRESS],
+        topic0: [
+            positionManagerAbi.events.IncreaseLiquidity.topic,
         ],
         transaction: true,
         range: {

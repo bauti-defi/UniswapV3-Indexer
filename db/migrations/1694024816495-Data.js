@@ -1,7 +1,12 @@
-module.exports = class Data1694020354919 {
-    name = 'Data1694020354919'
+module.exports = class Data1694024816495 {
+    name = 'Data1694024816495'
 
     async up(db) {
+        await db.query(`CREATE TABLE "mint_position" ("id" character varying NOT NULL, "tick_lower" integer NOT NULL, "tick_upper" integer NOT NULL, "amount0" numeric NOT NULL, "amount1" numeric NOT NULL, "liquidity" numeric NOT NULL, "token_id" numeric NOT NULL, "recipient" text, "transaction_id" character varying, "pool_id" character varying, CONSTRAINT "PK_34616b042b474a8b168bcd6a03e" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE INDEX "IDX_ef29b975a943bef758913c4f53" ON "mint_position" ("transaction_id") `)
+        await db.query(`CREATE INDEX "IDX_735bd390d7f96c9d29443b18a3" ON "mint_position" ("pool_id") `)
+        await db.query(`CREATE INDEX "IDX_72ef90f44fee5ba417dc2aab1a" ON "mint_position" ("token_id") `)
+        await db.query(`CREATE INDEX "IDX_11804999d0bce72926fb79234d" ON "mint_position" ("recipient") `)
         await db.query(`CREATE TABLE "pool" ("id" character varying NOT NULL, "chain_id" integer NOT NULL, "token0" text NOT NULL, "token1" text NOT NULL, "fee" integer NOT NULL, "pool_address" text NOT NULL, CONSTRAINT "PK_db1bfe411e1516c01120b85f8fe" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_ca7b22bed322c7c1c817d7fefc" ON "pool" ("chain_id") `)
         await db.query(`CREATE INDEX "IDX_d33ce43928d5ee9e71030dc266" ON "pool" ("token0") `)
@@ -24,19 +29,19 @@ module.exports = class Data1694020354919 {
         await db.query(`CREATE INDEX "IDX_4a93f9f420d5e2c32f108975b7" ON "block" ("chain_id") `)
         await db.query(`CREATE INDEX "IDX_f40192bd17405d84ecdb4163bb" ON "block" ("block_number") `)
         await db.query(`CREATE INDEX "IDX_5c67cbcf4960c1a39e5fe25e87" ON "block" ("timestamp") `)
-        await db.query(`CREATE TABLE "mint_position" ("id" character varying NOT NULL, "tick_lower" integer NOT NULL, "tick_upper" integer NOT NULL, "amount0" numeric NOT NULL, "amount1" numeric NOT NULL, "liquidity" numeric NOT NULL, "token_id" numeric NOT NULL, "recipient" text, "deadline" numeric NOT NULL, "transaction_id" character varying, "pool_id" character varying, CONSTRAINT "PK_34616b042b474a8b168bcd6a03e" PRIMARY KEY ("id"))`)
-        await db.query(`CREATE INDEX "IDX_ef29b975a943bef758913c4f53" ON "mint_position" ("transaction_id") `)
-        await db.query(`CREATE INDEX "IDX_735bd390d7f96c9d29443b18a3" ON "mint_position" ("pool_id") `)
-        await db.query(`CREATE INDEX "IDX_72ef90f44fee5ba417dc2aab1a" ON "mint_position" ("token_id") `)
-        await db.query(`CREATE INDEX "IDX_11804999d0bce72926fb79234d" ON "mint_position" ("recipient") `)
+        await db.query(`ALTER TABLE "mint_position" ADD CONSTRAINT "FK_ef29b975a943bef758913c4f53c" FOREIGN KEY ("transaction_id") REFERENCES "transaction"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
+        await db.query(`ALTER TABLE "mint_position" ADD CONSTRAINT "FK_735bd390d7f96c9d29443b18a3b" FOREIGN KEY ("pool_id") REFERENCES "pool"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
         await db.query(`ALTER TABLE "swap" ADD CONSTRAINT "FK_78506c4050ae7cedd50b08c0dc5" FOREIGN KEY ("transaction_id") REFERENCES "transaction"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
         await db.query(`ALTER TABLE "swap" ADD CONSTRAINT "FK_e78e7b899d2e3327494e5fe975d" FOREIGN KEY ("pool_id") REFERENCES "pool"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
         await db.query(`ALTER TABLE "transaction" ADD CONSTRAINT "FK_c0e1460f3c9eee975fee81002dc" FOREIGN KEY ("block_id") REFERENCES "block"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
-        await db.query(`ALTER TABLE "mint_position" ADD CONSTRAINT "FK_ef29b975a943bef758913c4f53c" FOREIGN KEY ("transaction_id") REFERENCES "transaction"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
-        await db.query(`ALTER TABLE "mint_position" ADD CONSTRAINT "FK_735bd390d7f96c9d29443b18a3b" FOREIGN KEY ("pool_id") REFERENCES "pool"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
     }
 
     async down(db) {
+        await db.query(`DROP TABLE "mint_position"`)
+        await db.query(`DROP INDEX "public"."IDX_ef29b975a943bef758913c4f53"`)
+        await db.query(`DROP INDEX "public"."IDX_735bd390d7f96c9d29443b18a3"`)
+        await db.query(`DROP INDEX "public"."IDX_72ef90f44fee5ba417dc2aab1a"`)
+        await db.query(`DROP INDEX "public"."IDX_11804999d0bce72926fb79234d"`)
         await db.query(`DROP TABLE "pool"`)
         await db.query(`DROP INDEX "public"."IDX_ca7b22bed322c7c1c817d7fefc"`)
         await db.query(`DROP INDEX "public"."IDX_d33ce43928d5ee9e71030dc266"`)
@@ -59,15 +64,10 @@ module.exports = class Data1694020354919 {
         await db.query(`DROP INDEX "public"."IDX_4a93f9f420d5e2c32f108975b7"`)
         await db.query(`DROP INDEX "public"."IDX_f40192bd17405d84ecdb4163bb"`)
         await db.query(`DROP INDEX "public"."IDX_5c67cbcf4960c1a39e5fe25e87"`)
-        await db.query(`DROP TABLE "mint_position"`)
-        await db.query(`DROP INDEX "public"."IDX_ef29b975a943bef758913c4f53"`)
-        await db.query(`DROP INDEX "public"."IDX_735bd390d7f96c9d29443b18a3"`)
-        await db.query(`DROP INDEX "public"."IDX_72ef90f44fee5ba417dc2aab1a"`)
-        await db.query(`DROP INDEX "public"."IDX_11804999d0bce72926fb79234d"`)
+        await db.query(`ALTER TABLE "mint_position" DROP CONSTRAINT "FK_ef29b975a943bef758913c4f53c"`)
+        await db.query(`ALTER TABLE "mint_position" DROP CONSTRAINT "FK_735bd390d7f96c9d29443b18a3b"`)
         await db.query(`ALTER TABLE "swap" DROP CONSTRAINT "FK_78506c4050ae7cedd50b08c0dc5"`)
         await db.query(`ALTER TABLE "swap" DROP CONSTRAINT "FK_e78e7b899d2e3327494e5fe975d"`)
         await db.query(`ALTER TABLE "transaction" DROP CONSTRAINT "FK_c0e1460f3c9eee975fee81002dc"`)
-        await db.query(`ALTER TABLE "mint_position" DROP CONSTRAINT "FK_ef29b975a943bef758913c4f53c"`)
-        await db.query(`ALTER TABLE "mint_position" DROP CONSTRAINT "FK_735bd390d7f96c9d29443b18a3b"`)
     }
 }

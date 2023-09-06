@@ -2,6 +2,7 @@ import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, M
 import * as marshal from "./marshal"
 import {Block} from "./block.model"
 import {Swap} from "./swap.model"
+import {MintPosition} from "./mintPosition.model"
 
 @Entity_()
 export class Transaction {
@@ -37,4 +38,7 @@ export class Transaction {
 
     @OneToMany_(() => Swap, e => e.transaction)
     swaps!: Swap[]
+
+    @OneToMany_(() => MintPosition, e => e.transaction)
+    mintPositions!: MintPosition[]
 }

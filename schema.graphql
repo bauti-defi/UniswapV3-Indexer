@@ -17,6 +17,7 @@ type Transaction @entity {
     gasUsed: BigInt!
 
     swaps: [Swap]! @derivedFrom(field: "transaction")
+    mintPositions: [MintPosition]! @derivedFrom(field: "transaction")
 }
 
 type Pool @entity {
@@ -26,6 +27,9 @@ type Pool @entity {
     token1: String! @index
     fee: Int! @index
     poolAddress: String! @index
+
+    swaps: [Swap]! @derivedFrom(field: "pool")
+    mintPositions: [MintPosition]! @derivedFrom(field: "pool")
 }
 
 type MintPosition @entity {
@@ -39,7 +43,6 @@ type MintPosition @entity {
     liquidity: BigInt!
     tokenId: BigInt! @index
     recipient: String @index
-    deadline: BigInt!
 }
 
 type Swap @entity {

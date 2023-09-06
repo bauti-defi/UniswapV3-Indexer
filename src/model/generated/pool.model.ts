@@ -1,4 +1,6 @@
-import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, Index as Index_} from "typeorm"
+import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, Index as Index_, OneToMany as OneToMany_} from "typeorm"
+import {Swap} from "./swap.model"
+import {MintPosition} from "./mintPosition.model"
 
 @Entity_()
 export class Pool {
@@ -28,4 +30,10 @@ export class Pool {
     @Index_()
     @Column_("text", {nullable: false})
     poolAddress!: string
+
+    @OneToMany_(() => Swap, e => e.pool)
+    swaps!: Swap[]
+
+    @OneToMany_(() => MintPosition, e => e.pool)
+    mintPositions!: MintPosition[]
 }

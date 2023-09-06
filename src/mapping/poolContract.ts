@@ -2,7 +2,7 @@ import {DataHandlerContext} from '@subsquid/evm-processor'
 import {Store} from '../db'
 import * as spec from "../abi/pool"
 import {Log} from '../processor'
-import { Block, Pool, Swap, Transaction } from '../model'
+import { Swap, Transaction } from '../model'
 import { getPool, getPoolFromAddress } from '../pools'
 import { utils } from 'web3'
 
@@ -31,3 +31,6 @@ export async function parseSwap(ctx: DataHandlerContext<Store>, log: Log, transa
     }
 }
 
+export const isPoolPositionMint = (log: Log) => {
+    return log.topics[0] === spec.events['Mint'].topic
+}
