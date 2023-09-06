@@ -12,9 +12,9 @@ type ExecutionContext = {
     transactions: Transaction[]
     swaps: Swap[]
     mints: MintPosition[]
-    burns: DecreasePositionLiquidity[]
+    liquidityDecreases: DecreasePositionLiquidity[]
 
-    burnEvents: Matcher<Log, Log>
+    liquidityDecreaseEvents: Matcher<Log, Log>
     mintEvents: Matcher<Log, Log>
     poolMintEventMap: Record<string, Log>
     increaseLiquidityEventMap: Record<string, Log>
@@ -26,8 +26,8 @@ const newExecutionContext = (): ExecutionContext => {
         transactions: [],
         swaps: [],
         mints: [],
-        burns: [],
-        burnEvents: new Matcher(),
+        liquidityDecreases: [],
+        liquidityDecreaseEvents: new Matcher(),
         mintEvents: new Matcher(),
         poolMintEventMap: {},
         increaseLiquidityEventMap: {}
@@ -45,7 +45,7 @@ processor.run(db, async (ctx) => {
         ctx.log.debug(`Pools table populated with pools of interest`);
     }
 
-    let {blocks, transactions, swaps, mints, burnEvents, poolMintEventMap, increaseLiquidityEventMap, burns, mintEvents} = newExecutionContext();
+    let {blocks, transactions, swaps, mints, liquidityDecreaseEvents, poolMintEventMap, increaseLiquidityEventMap, liquidityDecreases, mintEvents} = newExecutionContext();
 
     for (let block of ctx.blocks) {
         const newBlock = new Block({
@@ -88,9 +88,9 @@ processor.run(db, async (ctx) => {
                 // increaseLiquidityEventMap[log.transactionHash] = log; // store for processing later
                 mintEvents.addRight(log.transactionHash, log); // store for processing later
             }else if(isLiquidityBurn(log)){
-                burnEvents.addLeft(log.transactionHash, log); // store for processing later
+                liquidityDecreaseEvents.addLeft(log.transactionHash, log); // store for processing later
             }else if(isDecreasePositionLiquidity(log)){
-                burnEvents.addRight(log.transactionHash, log); // store for processing later
+                liquidityDecreaseEvents.addRight(log.transactionHash, log); // store for processing later
             }
         }
     }
@@ -102,9 +102,9 @@ processor.run(db, async (ctx) => {
     }
 
     // lets process the liquidity burn events
-    for(let [txHash, burn, decrease] of burnEvents.getMatchedEntries()) {
+    for(let [txHash, burn, decrease] of liquidityDecreaseEvents.getMatchedEntries()) {
         const decreaseLiquidity = await parseLiquidityBurn(ctx, burn, decrease, transactions.find(t => t.hash === txHash)!)
-        if(decreaseLiquidity) burns.push(decreaseLiquidity)
+        if(decreaseLiquidity) liquidityDecreases.push(decreaseLiquidity)
     }
 
     // TODO: lets process increase liquidity events that are not related to a mint
@@ -114,5 +114,5 @@ processor.run(db, async (ctx) => {
     await ctx.store.insert(transactions)
     await ctx.store.insert(swaps)
     await ctx.store.insert(mints)
-    await ctx.store.insert(burns)
+    await ctx.store.insert(liquidityDecreases)
 })
