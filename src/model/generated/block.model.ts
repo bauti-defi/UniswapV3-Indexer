@@ -1,4 +1,5 @@
-import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, Index as Index_} from "typeorm"
+import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, Index as Index_, OneToMany as OneToMany_} from "typeorm"
+import {Transaction} from "./transaction.model"
 
 @Entity_()
 export class Block {
@@ -11,9 +12,16 @@ export class Block {
 
     @Index_()
     @Column_("int4", {nullable: false})
-    number!: number
+    chainId!: number
+
+    @Index_()
+    @Column_("int4", {nullable: false})
+    blockNumber!: number
 
     @Index_()
     @Column_("timestamp with time zone", {nullable: false})
     timestamp!: Date
+
+    @OneToMany_(() => Transaction, e => e.block)
+    transactions!: Transaction[]
 }

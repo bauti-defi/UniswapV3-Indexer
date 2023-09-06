@@ -1,9 +1,11 @@
-import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, Index as Index_} from "typeorm"
+import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_} from "typeorm"
 import * as marshal from "./marshal"
+import {Transaction} from "./transaction.model"
+import {Pool} from "./pool.model"
 
 @Entity_()
-export class ContractFunctionMintParameters {
-    constructor(props?: Partial<ContractFunctionMintParameters>) {
+export class MintPosition {
+    constructor(props?: Partial<MintPosition>) {
         Object.assign(this, props)
     }
 
@@ -11,20 +13,12 @@ export class ContractFunctionMintParameters {
     id!: string
 
     @Index_()
-    @Column_("text", {nullable: false})
-    pool!: string
+    @ManyToOne_(() => Transaction, {nullable: true})
+    transaction!: Transaction
 
     @Index_()
-    @Column_("text", {nullable: false})
-    token0!: string
-
-    @Index_()
-    @Column_("text", {nullable: false})
-    token1!: string
-
-    @Index_()
-    @Column_("int4", {nullable: false})
-    fee!: number
+    @ManyToOne_(() => Pool, {nullable: true})
+    pool!: Pool
 
     @Column_("int4", {nullable: false})
     tickLower!: number
@@ -33,16 +27,17 @@ export class ContractFunctionMintParameters {
     tickUpper!: number
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-    amount0Desired!: bigint
+    amount0!: bigint
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-    amount1Desired!: bigint
+    amount1!: bigint
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-    amount0Min!: bigint
+    liquidity!: bigint
 
+    @Index_()
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-    amount1Min!: bigint
+    tokenId!: bigint
 
     @Index_()
     @Column_("text", {nullable: true})
