@@ -3,6 +3,7 @@ type Block @entity {
     chainId: Int! @index
     blockNumber: Int! @index
     timestamp: DateTime! @index
+
     transactions: [Transaction]! @derivedFrom(field: "block")
 }
 
@@ -14,10 +15,13 @@ type Transaction @entity {
     from: String @index
     status: Int @index
     gasUsed: BigInt!
+
+    swaps: [Swap]! @derivedFrom(field: "transaction")
 }
 
 type Pool @entity {
     id: ID!
+    chainId: Int! @index
     token0: String! @index
     token1: String! @index
     fee: Int! @index

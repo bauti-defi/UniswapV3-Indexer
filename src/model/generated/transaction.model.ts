@@ -1,6 +1,7 @@
-import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_} from "typeorm"
+import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_, OneToMany as OneToMany_} from "typeorm"
 import * as marshal from "./marshal"
 import {Block} from "./block.model"
+import {Swap} from "./swap.model"
 
 @Entity_()
 export class Transaction {
@@ -33,4 +34,7 @@ export class Transaction {
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     gasUsed!: bigint
+
+    @OneToMany_(() => Swap, e => e.transaction)
+    swaps!: Swap[]
 }

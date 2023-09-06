@@ -1,12 +1,26 @@
 import {EvmBatchProcessor, EvmBatchProcessorFields, BlockHeader, Log as _Log, Transaction as _Transaction} from '@subsquid/evm-processor'
 import {lookupArchive} from '@subsquid/archive-registry'
-import * as positionManagerAbi from './abi/positionManager'
-import * as swapRouterAbi from './abi/swapRouter'
+import * as poolFactoryAbi from './abi/poolFactory'
+import * as poolAbi from './abi/pool'
+import { poolAddresses } from './pools'
+
+const POOL_FACTORY_ADDRESS = '0x1f98431c8ad98523631ae4a59f267346ea31f984'
+
+const withPoolCreationIndexing = (process: EvmBatchProcessor) => {
+    return process.addLog({
+        address: [POOL_FACTORY_ADDRESS],
+        topic0: [poolFactoryAbi.events.PoolCreated.topic],
+        range: {
+            from: 64173427, // first pool created
+            to: 101196672, // last pool created
+        },
+    })
+}
 
 export const processor = new EvmBatchProcessor()
     .setDataSource({
         archive: lookupArchive('arbitrum', {type: 'EVM'}),
-        chain: process.env.ARB_RPC_ENDPOINT
+        // chain: process.env.ARB_RPC_ENDPOINT
     })
     .setFields({
             log: {
@@ -27,23 +41,11 @@ export const processor = new EvmBatchProcessor()
     })
     .setFinalityConfirmation(10)
     .addLog({
-        address: ['0xc36442b4a4522e871399cd717abdd847ab11fe88'],
+        address: poolAddresses,
         topic0: [
-            positionManagerAbi.events['IncreaseLiquidity'].topic,
-            positionManagerAbi.events['DecreaseLiquidity'].topic,
+            poolAbi.events['Swap'].topic,
         ],
-        range: {
-            from: 121460117,
-        },
-    })
-    .addTransaction({
-        to: ['0xc36442b4a4522e871399cd717abdd847ab11fe88', '0xe592427a0aece92de3edee1f18e0157c05861564'],
-        sighash: [
-            positionManagerAbi.functions['mint'].sighash,
-            positionManagerAbi.functions['increaseLiquidity'].sighash,
-            positionManagerAbi.functions['decreaseLiquidity'].sighash,
-            swapRouterAbi.functions['exactInputSingle'].sighash
-        ],
+        transaction: true,
         range: {
             from: 121460117,
         },
@@ -52,4 +54,4 @@ export const processor = new EvmBatchProcessor()
 export type Fields = EvmBatchProcessorFields<typeof processor>
 export type Block = BlockHeader<Fields>
 export type Log = _Log<Fields>
-export type Transaction = _Transaction<Fields>
+export type BlockTransaction = _Transaction<Fields>

@@ -10,6 +10,10 @@ export class Pool {
     id!: string
 
     @Index_()
+    @Column_("int4", {nullable: false})
+    chainId!: number
+
+    @Index_()
     @Column_("text", {nullable: false})
     token0!: string
 
