@@ -9,6 +9,28 @@ import { isIncreaseLiquidity } from './mapping/positionManagerContract'
 import { Log } from '@subsquid/evm-processor'
 import { parseMint } from './mapping/positionMint'
 
+
+type ExecutionContext = {
+    blocks: Block[]
+    transactions: Transaction[]
+    swaps: Swap[]
+    mints: MintPosition[]
+    poolMintEventMap: Record<string, Log>
+    increaseLiquidityEventMap: Record<string, Log>
+}
+
+const newExecutionContext = (): ExecutionContext => {
+    return {
+        blocks: [],
+        transactions: [],
+        swaps: [],
+        mints: [],
+        poolMintEventMap: {},
+        increaseLiquidityEventMap: {}
+    }
+}
+
+
 let poolsCreated = false
 
 processor.run(db, async (ctx) => {
@@ -19,13 +41,7 @@ processor.run(db, async (ctx) => {
         ctx.log.debug(`Pools table populated with pools of interest`);
     }
 
-    let blocks: Block[] = []
-    let transactions: Transaction[] = []
-    let swaps: Swap[] = []
-    let mints: MintPosition[] = []
-
-    let poolMintEventMap: Record<string, Log> = {}
-    let increaseLiquidityEventMap: Record<string, Log> = {}
+    let {blocks, transactions, swaps, mints, poolMintEventMap, increaseLiquidityEventMap} = newExecutionContext();
 
     for (let block of ctx.blocks) {
         const newBlock = new Block({
@@ -90,12 +106,4 @@ processor.run(db, async (ctx) => {
     await ctx.store.insert(transactions)
     await ctx.store.insert(swaps)
     await ctx.store.insert(mints)
-
-    // clear cache
-    blocks = []
-    transactions = []
-    swaps = []
-    mints = []
-    poolMintEventMap = {}
-    increaseLiquidityEventMap = {}
 })
