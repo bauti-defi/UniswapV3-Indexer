@@ -2,9 +2,8 @@ import {DataHandlerContext} from '@subsquid/evm-processor'
 import {Store} from '../db'
 import * as spec from "../abi/pool"
 import {Log} from '../processor'
-import { Swap, Transaction } from '../model'
+import { BurnLiquidity, Swap, Transaction } from '../model'
 import { getPool, getPoolFromAddress } from '../pools'
-import { utils } from 'web3'
 
 export const isSwap = (log: Log) => {
     return log.topics[0] === spec.events['Swap'].topic
@@ -17,7 +16,7 @@ export async function parseSwap(ctx: DataHandlerContext<Store>, log: Log, transa
         return new Swap({
             id: log.id,
             transaction,
-            pool: await getPool(utils.toChecksumAddress(log.address), ctx),
+            pool: await getPool(log.address, ctx),
             recipient: event[1],
             amount0: event[2],
             amount1: event[3],
@@ -33,4 +32,28 @@ export async function parseSwap(ctx: DataHandlerContext<Store>, log: Log, transa
 
 export const isPoolPositionMint = (log: Log) => {
     return log.topics[0] === spec.events['Mint'].topic
+}
+
+export const isLiquidityBurn = (log: Log) => {
+    return log.topics[0] === spec.events['Burn'].topic
+}
+
+export async function parseLiquidityBurn(ctx: DataHandlerContext<Store>, log: Log, transaction: Transaction): Promise<BurnLiquidity | undefined> {
+    try {
+        const [_owner, tickerLower, tickerUpper, amount, amount0, amount1] = spec.events['Burn'].decode(log)
+
+        return new BurnLiquidity({
+            id: log.id,
+            transaction,
+            pool: await getPool(log.address, ctx),
+            tickLower: tickerLower, 
+            tickUpper: tickerUpper,
+            amount0,
+            amount1,
+            liquidity: amount
+        })
+    }
+    catch (error) {
+        ctx.log.error({error, blockNumber: log.block.height, blockHash: log.block.hash, address: log.address}, `Unable to decode event "${log.topics[0]}"`)
+    }
 }

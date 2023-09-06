@@ -57,6 +57,17 @@ type Swap @entity {
     tick: Int! @index
 }
 
+type BurnLiquidity @entity {
+    id: ID!
+    transaction: Transaction!
+    pool: Pool!
+    tickLower: Int! @index
+    tickUpper: Int! @index
+    liquidity: BigInt!
+    amount0: BigInt!
+    amount1: BigInt!
+}
+
 # type ContractEventIncreaseLiquidity @entity {
 #     id: ID!
 #     blockNumber: Int! @index

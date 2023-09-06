@@ -3,6 +3,7 @@ import { Token } from '@uniswap/sdk-core'
 import { Store } from "./db"
 import { DataHandlerContext } from "@subsquid/evm-processor"
 import { Pool as PoolModel} from "./model"
+import { utils } from 'web3'
 
 const uniswapFactoryAddress = '0x1F98431c8aD98523631AE4a59f267346ea31F984'
 
@@ -68,7 +69,7 @@ export const getPool = async (address: string, ctx: DataHandlerContext<Store>) =
 
     if(pool) return pool
 
-    pool = await ctx.store.findOneBy(PoolModel, {poolAddress: address})
+    pool = await ctx.store.findOneBy(PoolModel, {poolAddress: utils.toChecksumAddress(address)})
 
     if(pool) {
         poolModelCache.push(pool)
