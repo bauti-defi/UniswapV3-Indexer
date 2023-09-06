@@ -1,112 +1,169 @@
 type Block @entity {
     id: ID!
-    number: Int! @index
+    chainId: Int! @index
+    blockNumber: Int! @index
     timestamp: DateTime! @index
+
+    transactions: [Transaction]! @derivedFrom(field: "block")
 }
 
 type Transaction @entity {
     id: ID!
-    blockNumber: Int @index
-    blockTimestamp: DateTime! @index
+    block: Block! 
     hash: String! @index
     to: String @index
     from: String @index
     status: Int @index
+    gasUsed: BigInt!
+
+    swaps: [Swap]! @derivedFrom(field: "transaction")
+    mintPositions: [MintPosition]! @derivedFrom(field: "transaction")
 }
 
-type ContractEventIncreaseLiquidity @entity {
+type Pool @entity {
     id: ID!
-    blockNumber: Int! @index
-    blockTimestamp: DateTime! @index
-    transactionHash: String! @index
-    contract: String! @index
-    eventName: String! @index
-    tokenId: BigInt! @index
-    liquidity: BigInt!
-    amount0: BigInt!
-    amount1: BigInt!
-}
-
-type ContractFunctionMint @entity {
-    id: ID!
-    blockNumber: Int! @index
-    blockTimestamp: DateTime! @index
-    transactionHash: String! @index
-    contract: String! @index
-    functionName: String! @index
-    functionValue: BigInt
-    functionSuccess: Boolean @index
-}
-
-type ContractFunctionMintParameters @entity {
-    id: ID!
-    pool: String! @index
+    chainId: Int! @index
     token0: String! @index
     token1: String! @index
     fee: Int! @index
+    poolAddress: String! @index
+
+    swaps: [Swap]! @derivedFrom(field: "pool")
+    mintPositions: [MintPosition]! @derivedFrom(field: "pool")
+}
+
+type MintPosition @entity {
+    id: ID!
+    transaction: Transaction!
+    pool: Pool!
     tickLower: Int!
     tickUpper: Int!
-    amount0Desired: BigInt!
-    amount1Desired: BigInt!
-    amount0Min: BigInt!
-    amount1Min: BigInt!
-    recipient: String @index
-    deadline: BigInt!
-}
-
-type ContractEventDecreaseLiquidity @entity {
-    id: ID!
-    blockNumber: Int! @index
-    blockTimestamp: DateTime! @index
-    transactionHash: String! @index
-    contract: String! @index
-    eventName: String! @index
-    tokenId: BigInt! @index
-    liquidity: BigInt!
     amount0: BigInt!
     amount1: BigInt!
-}
-
-type ContractFunctionDecreaseLiquidity @entity {
-    id: ID!
-    blockNumber: Int! @index
-    blockTimestamp: DateTime! @index
-    transactionHash: String! @index
-    contract: String! @index
-    functionName: String! @index
-    functionValue: BigInt
-    functionSuccess: Boolean @index
-}
-
-type ContractFunctionDecreaseLiquidityParameters @entity {
-    id: ID!
-    tokenId: BigInt! @index
     liquidity: BigInt!
-    amount0Min: BigInt!
-    amount1Min: BigInt!
-    deadline: BigInt!
-}
-
-type ContractFunctionExactInputSingle @entity {
-    id: ID!
-    blockNumber: Int! @index
-    blockTimestamp: DateTime! @index
-    transactionHash: String! @index
-    contract: String! @index
-    functionName: String! @index
-    functionValue: BigInt
-    functionSuccess: Boolean @index
-}
-
-type ContractFunctionExactInputSingleParams @entity {
-    id: ID!
-    pool: String! @index
-    tokenIn: String! @index
-    tokenOut: String! @index
-    fee: Int! @index
+    tokenId: BigInt! @index
     recipient: String @index
-    deadline: BigInt!
-    amountIn: BigInt!
-    amountOutMinimum: BigInt!
-    sqrtPriceLimitX96: BigInt!
 }
+
+type Swap @entity {
+    id: ID!
+    transaction: Transaction!
+    pool: Pool!
+    recipient: String @index
+    amount0: BigInt!
+    amount1: BigInt!
+    sqrtPriceX96: BigInt! @index
+    liquidity: BigInt!
+    tick: Int! @index
+}
+
+# type ContractEventIncreaseLiquidity @entity {
+#     id: ID!
+#     blockNumber: Int! @index
+#     blockTimestamp: DateTime! @index
+#     transactionHash: String! @index
+#     contract: String! @index
+#     eventName: String! @index
+#     tokenId: BigInt! @index
+#     liquidity: BigInt!
+#     amount0: BigInt!
+#     amount1: BigInt!
+# }
+
+# type ContractFunctionMint @entity {
+#     id: ID!
+#     blockNumber: Int! @index
+#     blockTimestamp: DateTime! @index
+#     transactionHash: String! @index
+#     contract: String! @index
+#     functionName: String! @index
+#     functionValue: BigInt
+#     functionSuccess: Boolean @index
+# }
+
+# type ContractFunctionMintParameters @entity {
+#     id: ID!
+#     pool: String! @index
+#     token0: String! @index
+#     token1: String! @index
+#     fee: Int! @index
+#     tickLower: Int!
+#     tickUpper: Int!
+#     amount0Desired: BigInt!
+#     amount1Desired: BigInt!
+#     amount0Min: BigInt!
+#     amount1Min: BigInt!
+#     recipient: String @index
+#     deadline: BigInt!
+# }
+
+# type ContractEventDecreaseLiquidity @entity {
+#     id: ID!
+#     blockNumber: Int! @index
+#     blockTimestamp: DateTime! @index
+#     transactionHash: String! @index
+#     contract: String! @index
+#     eventName: String! @index
+#     tokenId: BigInt! @index
+#     liquidity: BigInt!
+#     amount0: BigInt!
+#     amount1: BigInt!
+# }
+
+# type ContractFunctionDecreaseLiquidity @entity {
+#     id: ID!
+#     blockNumber: Int! @index
+#     blockTimestamp: DateTime! @index
+#     transactionHash: String! @index
+#     contract: String! @index
+#     functionName: String! @index
+#     functionValue: BigInt
+#     functionSuccess: Boolean @index
+# }
+
+# type ContractFunctionDecreaseLiquidityParameters @entity {
+#     id: ID!
+#     tokenId: BigInt! @index
+#     liquidity: BigInt!
+#     amount0Min: BigInt!
+#     amount1Min: BigInt!
+#     deadline: BigInt!
+# }
+
+# type ContractFunctionExactInputSingle @entity {
+#     id: ID!
+#     blockNumber: Int! @index
+#     blockTimestamp: DateTime! @index
+#     transactionHash: String! @index
+#     contract: String! @index
+#     functionName: String! @index
+#     functionValue: BigInt
+#     functionSuccess: Boolean @index
+# }
+
+# type ContractFunctionExactInputSingleParams @entity {
+#     id: ID!
+#     pool: String! @index
+#     tokenIn: String! @index
+#     tokenOut: String! @index
+#     fee: Int! @index
+#     recipient: String @index
+#     deadline: BigInt!
+#     amountIn: BigInt!
+#     amountOutMinimum: BigInt!
+#     sqrtPriceLimitX96: BigInt!
+# }
+
+# type TickInfo @entity {
+#     id: ID!
+#     pool: String! @index
+#     tick: Int! @index
+#     liquidityGross: BigInt!
+#     liquidityNet: BigInt!
+#     feeGrowthOutside0X128: BigInt!
+#     feeGrowthOutside1X128: BigInt!
+#     tickCumulativeOutside: BigInt!
+#     secondsPerLiquidityOutsideX128: BigInt!
+#     secondsOutside: BigInt!
+#     initialized: Boolean!
+# }

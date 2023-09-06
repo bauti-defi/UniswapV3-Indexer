@@ -2,6 +2,8 @@
 /lib
 /builds
 
+.env
+
 /**Versions.json
 
 # IDE files
