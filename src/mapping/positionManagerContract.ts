@@ -79,11 +79,12 @@ export function parseFunction(ctx: DataHandlerContext<Store>, transaction: Trans
                 )
 
                 const params = toJSON(f[0])
+                const poolAddress = calculatePoolAddress(params[0], params[1], params[2])
 
                 EntityBuffer.add(
                     new ContractFunctionMintParameters({
                         id: transaction.id,
-                        pool: calculatePoolAddress(params[0], params[1], params[2]),
+                        pool: poolAddress,
                         token0: params[0],
                         token1: params[1],
                         fee: params[2],

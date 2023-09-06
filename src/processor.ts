@@ -6,6 +6,7 @@ import * as swapRouterAbi from './abi/0xe592427a0aece92de3edee1f18e0157c05861564
 export const processor = new EvmBatchProcessor()
     .setDataSource({
         archive: lookupArchive('arbitrum', {type: 'EVM'}),
+        chain: process.env.ARB_RPC_ENDPOINT
     })
     .setFields({
             log: {

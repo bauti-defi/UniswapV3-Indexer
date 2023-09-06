@@ -4,22 +4,12 @@ import {Store} from '../db'
 import {EntityBuffer} from '../entityBuffer'
 import {ContractFunctionExactInputSingle} from '../model'
 import * as spec from '../abi/0xe592427a0aece92de3edee1f18e0157c05861564'
-import {Log, Transaction} from '../processor'
+import {Transaction} from '../processor'
 import { ContractFunctionExactInputSingleParams } from '../model/generated/contractFunctionExactInputSingleParams.model'
 import { calculatePoolAddress } from './utils'
 
 const address = '0xe592427a0aece92de3edee1f18e0157c05861564'
 
-
-export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
-    try {
-        switch (log.topics[0]) {
-        }
-    }
-    catch (error) {
-        ctx.log.error({error, blockNumber: log.block.height, blockHash: log.block.hash, address}, `Unable to decode event "${log.topics[0]}"`)
-    }
-}
 
 export function parseFunction(ctx: DataHandlerContext<Store>, transaction: Transaction) {
     try {

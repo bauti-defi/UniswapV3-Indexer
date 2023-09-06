@@ -110,3 +110,17 @@ type ContractFunctionExactInputSingleParams @entity {
     amountOutMinimum: BigInt!
     sqrtPriceLimitX96: BigInt!
 }
+
+type TickInfo @entity {
+    id: ID!
+    pool: String! @index
+    tick: Int! @index
+    liquidityGross: BigInt!
+    liquidityNet: BigInt!
+    feeGrowthOutside0X128: BigInt!
+    feeGrowthOutside1X128: BigInt!
+    tickCumulativeOutside: BigInt!
+    secondsPerLiquidityOutsideX128: BigInt!
+    secondsOutside: BigInt!
+    initialized: Boolean!
+}
