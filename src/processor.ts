@@ -48,6 +48,7 @@ export const processor = new EvmBatchProcessor()
             poolAbi.events['Swap'].topic,
             poolAbi.events['Mint'].topic,
             poolAbi.events['Burn'].topic,
+            poolAbi.events['Collect'].topic,
         ],
         transaction: true,
         range: {
@@ -59,6 +60,7 @@ export const processor = new EvmBatchProcessor()
         topic0: [
             positionManagerAbi.events['IncreaseLiquidity'].topic,
             positionManagerAbi.events['DecreaseLiquidity'].topic,
+            positionManagerAbi.events['Collect'].topic,
         ],
         transaction: true,
         range: {

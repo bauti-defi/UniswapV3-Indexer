@@ -37,3 +37,7 @@ export const isPoolPositionMint = (log: Log) => {
 export const isLiquidityBurn = (log: Log) => {
     return log.topics[0] === poolSpec.events['Burn'].topic
 }
+
+export const isPoolCollection = (log: Log) => {
+    return log.topics[0] === poolSpec.events['Collect'].topic
+}

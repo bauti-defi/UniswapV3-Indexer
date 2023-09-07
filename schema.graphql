@@ -70,3 +70,15 @@ type DecreasePositionLiquidity @entity {
     amount0: BigInt!
     amount1: BigInt!
 }
+
+type CollectionPosition @entity {
+    id: ID!
+    transaction: Transaction!
+    pool: Pool!
+    tokenId: BigInt! @index
+    recipient: String @index
+    tickLower: Int! @index
+    tickUpper: Int! @index
+    amount0Collected: BigInt!
+    amount1Collected: BigInt!
+}

@@ -1,7 +1,7 @@
 import { DataHandlerContext, Log } from "@subsquid/evm-processor"
 import { Store } from "@subsquid/typeorm-store"
 import { utils } from "web3"
-import { DecreasePositionLiquidity, MintPosition, Swap, Transaction } from "../model"
+import { DecreasePositionLiquidity, MintPosition, Swap, Transaction, CollectionPosition } from "../model"
 import { getPool } from "../pools"
 
 import * as poolSpec from "../abi/pool"
@@ -54,5 +54,29 @@ export async function parseLiquidityBurn(ctx: DataHandlerContext<Store>, burnLog
     }
     catch (error) {
         ctx.log.error({error, blockNumber: burnLog.block.height, blockHash: burnLog.block.hash, address: burnLog.address}, `Unable to decode event "${burnLog.topics[0]}"`)
+    }
+}
+
+export async function parseCollect(ctx: DataHandlerContext<Store>, managerLog: Log, poolLog: Log, transaction: Transaction): Promise<CollectionPosition | undefined> {
+    try {
+        const [tokenId, recipient, amount0Collected, amount1Collected] = managerSpec.events['Collect'].decode(managerLog)
+        const [_owner, _recipient, tickLower, tickUpper, _amount0Collected, _amount1Collected] = poolSpec.events['Collect'].decode(poolLog);
+
+        if(managerLog.transaction?.hash !== poolLog.transaction?.hash || managerLog.transaction?.hash !== transaction.hash) throw Error('Transaction hash is NOT the same for all logs')
+
+        return new CollectionPosition({
+            id: managerLog.id,
+            transaction,
+            pool: await getPool(poolLog.address, ctx),
+            tokenId,
+            tickLower,
+            tickUpper,
+            recipient,
+            amount0Collected,
+            amount1Collected,
+        })
+    }
+    catch (error) {
+        ctx.log.error({error, blockNumber: managerLog.block.height, blockHash: managerLog.block.hash, address: managerLog.address}, `Unable to decode event "${managerLog.topics[0]}"`)
     }
 }
