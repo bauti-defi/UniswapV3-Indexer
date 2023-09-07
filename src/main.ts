@@ -3,7 +3,7 @@ import {db} from './db'
 import {Block, BurnPosition, CollectionPosition, DecreasePositionLiquidity, MintPosition, Position, Swap, Transaction} from './model'
 import {populatePoolsTable } from './utils/pools'
 import { isLiquidityBurn, isPoolCollection, isPoolPositionMint, isSwap, parseSwap } from './mapping/poolContract'
-import { isBurn, isCollectPosition, isDecreasePositionLiquidity, isIncreaseLiquidity } from './mapping/positionManagerContract'
+import { isBurn, isCollectPosition, isDecreasePositionLiquidity, isIncreaseLiquidity, isMintTransaction } from './mapping/positionManagerContract'
 import { parseMint, parseLiquidityBurn } from './mapping/position'
 import Matcher from './utils/matcher'
 import { parseCollect } from './mapping/position'
@@ -23,7 +23,7 @@ type ExecutionContext = {
     readonly transactionMap: Record<string, Transaction>
     readonly collectionEvents: Matcher<Log, Log>
     readonly liquidityDecreaseEvents: Matcher<Log, Log>
-    readonly mintEvents: Matcher<Log, Log>
+    readonly mintEvents: Matcher<BlockTransaction, Log>
     readonly poolMintEventMap: Record<string, Log>
     readonly increaseLiquidityEventMap: Record<string, Log>
 }
@@ -85,6 +85,10 @@ processor.run(db, async (ctx) => {
 
             transactions.push([transaction, rawTrx]);
             transactionMap[transaction.hash] = transaction;
+
+            if(isMintTransaction(rawTrx)) {
+                mintEvents.addLeft(rawTrx.hash, rawTrx)
+            }
         }
         
         for (let log of block.logs) {
@@ -96,9 +100,9 @@ processor.run(db, async (ctx) => {
 
              if (isSwap(log)) {
                 const swap = await parseSwap(ctx, log, transactionMap[log.transactionHash]!)
-                swaps.push(swap!);
+                if(swap) swaps.push(swap);
             } else if(isPoolPositionMint(log)){
-                mintEvents.addLeft(log.transactionHash, log); // store for processing later
+                // mintEvents.addLeft(log.transactionHash, log); // store for processing later
             } else if(isIncreaseLiquidity(log)){
                 mintEvents.addRight(log.transactionHash, log); // store for processing later
             }else if(isLiquidityBurn(log)){
@@ -117,8 +121,10 @@ processor.run(db, async (ctx) => {
     for(let [txHash, poolMint, increase] of mintEvents.getMatchedEntries()) {
         const [position, mint] = await parseMint(ctx, poolMint, increase, transactionMap[txHash]!)
 
-        if(position) positions.push(position);
-        if(mint) mints.push(mint);
+        if(position && mint) {
+            positions.push(position);
+            mints.push(mint);
+        }
     }
 
     // insert position now so they can be used in future processing

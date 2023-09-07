@@ -11,7 +11,7 @@ type Transaction @entity {
     id: ID!
     block: Block!
     transactionIndex: Int! 
-    hash: String! @index
+    hash: String! @index @unique
     to: String @index
     from: String @index
     status: Int @index
@@ -42,7 +42,7 @@ type Position @entity {
     pool: Pool!
     tickLower: Int! @index
     tickUpper: Int! @index
-    tokenId: BigInt! @index # TODO: should be @unique
+    tokenId: BigInt! @index @unique
 
     mint: MintPosition @derivedFrom(field: "position")
     decreaseLiquidity: [DecreasePositionLiquidity]! @derivedFrom(field: "position")

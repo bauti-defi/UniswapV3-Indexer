@@ -75,19 +75,22 @@ export const poolsOfInterest: readonly Pool[] = [
 
 const poolModelCache: PoolModel[] = []
 
-export const getPoolByAddressThunk = async (address: string, ctx: DataHandlerContext<Store>) => {
+export const getPoolByAddressThunk = async (address: string, ctx: DataHandlerContext<Store>): Promise<PoolModel | undefined> => {
     let pool = poolModelCache.find(p => p.poolAddress.toLowerCase() === address.toLowerCase())
 
     if(pool) return pool
 
-    pool = await ctx.store.findOneBy(PoolModel, {poolAddress: utils.toChecksumAddress(address)})
+    pool = await ctx.store.findOneBy(PoolModel, {poolAddress: utils.toChecksumAddress(address), chainId: chainId()})
 
     if(pool) {
         poolModelCache.push(pool)
         return pool
     }
+}
 
-    throw new Error(`Pool not found in database for address ${address}`)
+export const getPoolThunk = async (token0: string, token1: string, fee: number, ctx: DataHandlerContext<Store>) => {
+    const poolAddress = calculatePoolAddress(token0, token1, fee as FeeAmount)
+    return getPoolByAddressThunk(poolAddress, ctx)
 }
 
 export const poolAddresses = poolsOfInterest.map(pool => calculatePoolAddress(pool.token0, pool.token1, pool.fee))

@@ -1,5 +1,5 @@
-module.exports = class Data1694110828749 {
-    name = 'Data1694110828749'
+module.exports = class Data1694121245137 {
+    name = 'Data1694121245137'
 
     async up(db) {
         await db.query(`CREATE TABLE "decrease_position_liquidity" ("id" character varying NOT NULL, "log_index" integer NOT NULL, "liquidity_delta" numeric NOT NULL, "amount0" numeric NOT NULL, "amount1" numeric NOT NULL, "transaction_id" character varying, "position_id" character varying, CONSTRAINT "PK_bf11bf3933520167f2a18f379bd" PRIMARY KEY ("id"))`)
@@ -16,7 +16,7 @@ module.exports = class Data1694110828749 {
         await db.query(`CREATE INDEX "IDX_128820371117dcf3915dc01ad3" ON "position" ("pool_id") `)
         await db.query(`CREATE INDEX "IDX_fe2fc9bc8dfb4c0adc294d7f8c" ON "position" ("tick_lower") `)
         await db.query(`CREATE INDEX "IDX_a63621aee4a0e085ad5a008612" ON "position" ("tick_upper") `)
-        await db.query(`CREATE INDEX "IDX_c698a043d388c59154c869435a" ON "position" ("token_id") `)
+        await db.query(`CREATE UNIQUE INDEX "IDX_c698a043d388c59154c869435a" ON "position" ("token_id") `)
         await db.query(`CREATE TABLE "pool" ("id" character varying NOT NULL, "chain_id" integer NOT NULL, "token0" text NOT NULL, "token1" text NOT NULL, "fee" integer NOT NULL, "pool_address" text NOT NULL, CONSTRAINT "PK_db1bfe411e1516c01120b85f8fe" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_d33ce43928d5ee9e71030dc266" ON "pool" ("token0") `)
         await db.query(`CREATE INDEX "IDX_d39ca709b11f93e38e867c1cec" ON "pool" ("token1") `)
@@ -37,7 +37,7 @@ module.exports = class Data1694110828749 {
         await db.query(`CREATE UNIQUE INDEX "IDX_0e3eeff82b8efbc41001d413c0" ON "burn_position" ("position_id") `)
         await db.query(`CREATE TABLE "transaction" ("id" character varying NOT NULL, "transaction_index" integer NOT NULL, "hash" text NOT NULL, "to" text, "from" text, "status" integer, "gas_used" numeric NOT NULL, "block_id" character varying, CONSTRAINT "PK_89eadb93a89810556e1cbcd6ab9" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_c0e1460f3c9eee975fee81002d" ON "transaction" ("block_id") `)
-        await db.query(`CREATE INDEX "IDX_de4f0899c41c688529784bc443" ON "transaction" ("hash") `)
+        await db.query(`CREATE UNIQUE INDEX "IDX_de4f0899c41c688529784bc443" ON "transaction" ("hash") `)
         await db.query(`CREATE INDEX "IDX_1713783ebe978fa2ae9654e4bb" ON "transaction" ("to") `)
         await db.query(`CREATE INDEX "IDX_290df3897fac99713afb5f3d7a" ON "transaction" ("from") `)
         await db.query(`CREATE INDEX "IDX_63f749fc7f7178ae1ad85d3b95" ON "transaction" ("status") `)

@@ -48,7 +48,7 @@ export const processor = new EvmBatchProcessor()
         address: poolAddresses,
         topic0: [
             poolAbi.events['Swap'].topic,
-            poolAbi.events['Mint'].topic,
+            // poolAbi.events['Mint'].topic,
             poolAbi.events['Burn'].topic,
             poolAbi.events['Collect'].topic,
         ],
@@ -73,6 +73,7 @@ export const processor = new EvmBatchProcessor()
         to: [POSITION_MANAGER_ADDRESS],
         sighash: [
             positionManagerAbi.functions['burn'].sighash,
+            positionManagerAbi.functions['mint'].sighash,
         ],
         range: {
             from: lowestBlock,

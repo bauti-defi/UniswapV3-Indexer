@@ -28,7 +28,7 @@ export class Position {
     @Column_("int4", {nullable: false})
     tickUpper!: number
 
-    @Index_()
+    @Index_({unique: true})
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     tokenId!: bigint
 

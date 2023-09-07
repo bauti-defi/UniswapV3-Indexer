@@ -16,3 +16,7 @@ export const isCollectPosition = (log: Log) => {
 export const isBurn = (transaction: BlockTransaction) => {
     return transaction.input.slice(0, 10) === spec.functions['burn'].sighash;
 }
+
+export const isMintTransaction = (transaction: BlockTransaction) => {
+    return transaction.input.slice(0, 10) === spec.functions['mint'].sighash;
+}

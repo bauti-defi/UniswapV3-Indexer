@@ -2,7 +2,7 @@ import { DataHandlerContext, Log } from "@subsquid/evm-processor"
 import { Store } from "@subsquid/typeorm-store"
 import { utils } from "web3"
 import { DecreasePositionLiquidity, MintPosition, Swap, Transaction, CollectionPosition, BurnPosition, Position } from "../model"
-import { getPoolByAddressThunk } from "../utils/pools"
+import { calculatePoolAddress, getPoolByAddressThunk, getPoolThunk, isPoolAddressOfInterest } from "../utils/pools"
 
 import * as poolSpec from "../abi/pool"
 import * as managerSpec from "../abi/positionManager"
@@ -10,16 +10,21 @@ import { BlockTransaction } from "../processor"
 import { getPositionByTokenIdThunk } from "../utils/positions"
 import { v4 as uuidv4 } from 'uuid';
 
-export async function parseMint(ctx: DataHandlerContext<Store>, mintLog: Log, increaseLog: Log, transaction: Transaction): Promise<[Position | undefined, MintPosition | undefined]> {
+export async function parseMint(ctx: DataHandlerContext<Store>, mintTrx: BlockTransaction, increaseLog: Log, transaction: Transaction): Promise<[Position, MintPosition] | [undefined, undefined]> {
     try {
-        const [_sender, _owner, tickLower, tickUpper, liquidity, amount0, amount1] = poolSpec.events['Mint'].decode(mintLog)
-        const [tokenId, _liquidity, _amount0, _amount1] = managerSpec.events['IncreaseLiquidity'].decode(increaseLog)
+        const params = managerSpec.functions['mint'].decode(mintTrx.input)
+        const [token0, token1, fee, tickLower, tickUpper, ..._] = params[0]
+        const [tokenId, liquidity, amount0, amount1] = managerSpec.events['IncreaseLiquidity'].decode(increaseLog)
 
-        if(mintLog.transaction?.hash !== increaseLog.transaction?.hash || mintLog.transaction?.hash !== transaction.hash) throw Error('Transaction hash is NOT the same for all logs')
+        if(mintTrx?.hash !== increaseLog.transaction?.hash || mintTrx?.hash !== transaction.hash) throw Error('Transaction hash is NOT the same for all logs')
+        
+        const poolAddress = calculatePoolAddress(token0, token1, fee)
+
+        if(!isPoolAddressOfInterest(poolAddress)) return [undefined, undefined]
 
         const position = new Position({
             id: uuidv4(),
-            pool: await getPoolByAddressThunk(utils.toChecksumAddress(mintLog.address), ctx),
+            pool: await getPoolByAddressThunk(poolAddress, ctx),
             tokenId,
             tickLower,
             tickUpper,
@@ -39,7 +44,7 @@ export async function parseMint(ctx: DataHandlerContext<Store>, mintLog: Log, in
         return [position, mintPosition]
     }
     catch (error) {
-        ctx.log.error({error, blockNumber: mintLog.block.height, blockHash: mintLog.block.hash, address: mintLog.address}, `Unable to decode event "${mintLog.topics[0]}"`)
+        ctx.log.error({error, blockNumber: mintTrx.block.height, blockHash: mintTrx.block.hash, address: mintTrx.from}, `Unable to decode event "${increaseLog.topics[0]}"`)
         
         return [undefined, undefined]
     }

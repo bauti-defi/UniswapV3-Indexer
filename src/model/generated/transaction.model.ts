@@ -24,7 +24,7 @@ export class Transaction {
     @Column_("int4", {nullable: false})
     transactionIndex!: number
 
-    @Index_()
+    @Index_({unique: true})
     @Column_("text", {nullable: false})
     hash!: string
 
