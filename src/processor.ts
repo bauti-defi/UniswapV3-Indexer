@@ -48,7 +48,6 @@ export const processor = new EvmBatchProcessor()
         address: poolAddresses,
         topic0: [
             poolAbi.events['Swap'].topic,
-            // poolAbi.events['Mint'].topic,
             poolAbi.events['Burn'].topic,
             poolAbi.events['Collect'].topic,
         ],

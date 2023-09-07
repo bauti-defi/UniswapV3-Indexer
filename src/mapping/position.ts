@@ -1,7 +1,7 @@
 import { DataHandlerContext, Log } from "@subsquid/evm-processor"
 import { Store } from "@subsquid/typeorm-store"
 import { utils } from "web3"
-import { DecreasePositionLiquidity, MintPosition, Swap, Transaction, CollectionPosition, BurnPosition, Position } from "../model"
+import { DecreasePositionLiquidity, MintPosition, Swap, Transaction, CollectionPosition, BurnPosition, Position, IncreasePositionLiquidity } from "../model"
 import { calculatePoolAddress, getPoolByAddressThunk, getPoolThunk, isPoolAddressOfInterest } from "../utils/pools"
 
 import * as poolSpec from "../abi/pool"
@@ -96,6 +96,27 @@ export async function parseCollect(ctx: DataHandlerContext<Store>, managerLog: L
     }
     catch (error) {
         ctx.log.error({error, blockNumber: managerLog.block.height, blockHash: managerLog.block.hash, address: managerLog.address}, `Unable to decode event "${managerLog.topics[0]}"`)
+    }
+}
+
+export const parseLiquidityIncrease = async (ctx: DataHandlerContext<Store>, increaseLog: Log, transaction: Transaction) => {
+    try {
+        const [tokenId, liquidity, amount0, amount1] = managerSpec.events['IncreaseLiquidity'].decode(increaseLog)
+
+        const position = await getPositionByTokenIdThunk(tokenId, ctx)
+
+        return position && new IncreasePositionLiquidity({
+            id: uuidv4(),
+            position,
+            transaction,
+            logIndex: increaseLog.logIndex,
+            liquidityDelta: liquidity,
+            amount0,
+            amount1,
+        })
+    }
+    catch (error) {
+        ctx.log.error({error, blockNumber: increaseLog.block.height, blockHash: increaseLog.block.hash, address: increaseLog.address}, `Unable to decode event "${increaseLog.topics[0]}"`)
     }
 }
 
