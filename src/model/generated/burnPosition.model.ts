@@ -1,6 +1,6 @@
-import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_} from "typeorm"
-import * as marshal from "./marshal"
+import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_, OneToOne as OneToOne_, JoinColumn as JoinColumn_} from "typeorm"
 import {Transaction} from "./transaction.model"
+import {Position} from "./position.model"
 
 @Entity_()
 export class BurnPosition {
@@ -18,7 +18,8 @@ export class BurnPosition {
     @Column_("int4", {nullable: false})
     transactionIndex!: number
 
-    @Index_()
-    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-    tokenId!: bigint
+    @Index_({unique: true})
+    @OneToOne_(() => Position, {nullable: true})
+    @JoinColumn_()
+    position!: Position
 }

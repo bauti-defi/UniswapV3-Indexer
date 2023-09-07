@@ -4,21 +4,24 @@ import * as spec from "../abi/poolFactory"
 import { Store } from "@subsquid/typeorm-store"
 import { Pool } from "../model"
 
+import { v4 as uuidv4 } from 'uuid';
+import { chainId } from "../utils/chain";
+
 export const isPoolCreation = (log: Log) => {
     return log.topics[0] === spec.events['PoolCreated'].topic
 }
 
 export const parsePoolCreation = (ctx: DataHandlerContext<Store>, log: Log) => {
     try {
-        const event = spec.events['PoolCreated'].decode(log)
+        const [token0, token1, fee, _, poolAddress] = spec.events['PoolCreated'].decode(log)
 
         return new Pool({
-            id: log.id,
-            chainId: 42161, // arbitrum
-            token0: event[0],
-            token1: event[1],
-            fee: event[2],
-            poolAddress: event[4],
+            id: uuidv4(),
+            chainId: chainId(),
+            token0,
+            token1,
+            fee,
+            poolAddress,
         })
     }
     catch (error) {

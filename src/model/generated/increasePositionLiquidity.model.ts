@@ -4,8 +4,8 @@ import {Transaction} from "./transaction.model"
 import {Position} from "./position.model"
 
 @Entity_()
-export class CollectionPosition {
-    constructor(props?: Partial<CollectionPosition>) {
+export class IncreasePositionLiquidity {
+    constructor(props?: Partial<IncreasePositionLiquidity>) {
         Object.assign(this, props)
     }
 
@@ -19,15 +19,14 @@ export class CollectionPosition {
     @Column_("int4", {nullable: false})
     logIndex!: number
 
-    @Index_()
-    @Column_("text", {nullable: true})
-    recipient!: string | undefined | null
+    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
+    liquidityDelta!: bigint
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-    amount0Collected!: bigint
+    amount0!: bigint
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-    amount1Collected!: bigint
+    amount1!: bigint
 
     @Index_()
     @ManyToOne_(() => Position, {nullable: true})

@@ -1,31 +1,34 @@
-import {processor, Log} from './processor'
+import {processor, Log, BlockTransaction} from './processor'
 import {db} from './db'
-import {Block, BurnPosition, CollectionPosition, DecreasePositionLiquidity, MintPosition, Swap, Transaction} from './model'
-import {populatePoolsTable } from './pools'
+import {Block, BurnPosition, CollectionPosition, DecreasePositionLiquidity, MintPosition, Position, Swap, Transaction} from './model'
+import {populatePoolsTable } from './utils/pools'
 import { isLiquidityBurn, isPoolCollection, isPoolPositionMint, isSwap, parseSwap } from './mapping/poolContract'
 import { isBurn, isCollectPosition, isDecreasePositionLiquidity, isIncreaseLiquidity } from './mapping/positionManagerContract'
 import { parseMint, parseLiquidityBurn } from './mapping/position'
-import Matcher from './matcher'
+import Matcher from './utils/matcher'
 import { parseCollect } from './mapping/position'
 import { parseBurn } from './mapping/position'
+import { chainId } from './utils/chain'
 
 type ExecutionContext = {
-    blocks: Block[]
-    transactions: Transaction[]
-    swaps: Swap[]
-    mints: MintPosition[]
-    liquidityDecreases: DecreasePositionLiquidity[]
-    collects: CollectionPosition[]
-    burns: BurnPosition[]
+    readonly blocks: Block[]
+    readonly transactions: [Transaction, BlockTransaction][]
+    readonly swaps: Swap[]
+    readonly mints: MintPosition[]
+    readonly liquidityDecreases: DecreasePositionLiquidity[]
+    readonly collects: CollectionPosition[]
+    readonly burns: BurnPosition[]
+    readonly positions: Position[]
 
-    collectionEvents: Matcher<Log, Log>
-    liquidityDecreaseEvents: Matcher<Log, Log>
-    mintEvents: Matcher<Log, Log>
-    poolMintEventMap: Record<string, Log>
-    increaseLiquidityEventMap: Record<string, Log>
+    readonly transactionMap: Record<string, Transaction>
+    readonly collectionEvents: Matcher<Log, Log>
+    readonly liquidityDecreaseEvents: Matcher<Log, Log>
+    readonly mintEvents: Matcher<Log, Log>
+    readonly poolMintEventMap: Record<string, Log>
+    readonly increaseLiquidityEventMap: Record<string, Log>
 }
 
-const newExecutionContext = (): ExecutionContext => {
+const newExecutionContext = ():  Readonly<ExecutionContext> => {
     return {
         blocks: [],
         transactions: [],
@@ -34,6 +37,9 @@ const newExecutionContext = (): ExecutionContext => {
         liquidityDecreases: [],
         collects: [],
         burns: [],
+        positions: [],
+
+        transactionMap: {},
         liquidityDecreaseEvents: new Matcher(),
         collectionEvents: new Matcher(),
         mintEvents: new Matcher(),
@@ -50,56 +56,50 @@ processor.run(db, async (ctx) => {
         await populatePoolsTable(ctx);
         poolsCreated = true;
 
-        ctx.log.debug(`Pools table populated with pools of interest`);
+        ctx.log.info(`Pools table populated with pools of interest`);
     }
 
-    let {blocks, transactions, swaps, mints, liquidityDecreaseEvents, liquidityDecreases, mintEvents, collectionEvents, collects, burns} = newExecutionContext();
+    let {blocks, transactionMap, transactions, swaps, mints, liquidityDecreaseEvents, liquidityDecreases, mintEvents, collectionEvents, collects, burns, positions} = newExecutionContext();
 
     for (let block of ctx.blocks) {
         const newBlock = new Block({
             id: block.header.id,
-            chainId: 42161, //arbitrum
+            chainId: chainId(), 
             blockNumber: block.header.height,
             timestamp: new Date(block.header.timestamp),
         })
 
         blocks.push(newBlock);
 
-        for(let transaction of block.transactions) {
-            const newTransaction = new Transaction({
-                id: transaction.id,
+        for(let rawTrx of block.transactions) {
+            const transaction = new Transaction({
+                id: rawTrx.id,
                 block: newBlock,
-                transactionIndex: transaction.transactionIndex,
-                hash: transaction!.hash,
-                to: transaction!.to,
-                from: transaction!.from,
-                status: transaction!.status,
-                gasUsed: transaction!.gasUsed
+                transactionIndex: rawTrx.transactionIndex,
+                hash: rawTrx!.hash,
+                to: rawTrx!.to,
+                from: rawTrx!.from,
+                status: rawTrx!.status,
+                gasUsed: rawTrx!.gasUsed
             })
 
-            transactions.push(newTransaction);
-
-            if(isBurn(transaction)) {
-                const burn = await parseBurn(ctx, transaction, newTransaction)
-                if(burn) burns.push(burn);
-            }
+            transactions.push([transaction, rawTrx]);
+            transactionMap[transaction.hash] = transaction;
         }
         
         for (let log of block.logs) {
 
             // if(isPoolCreation(log)) {
             //     const pool = parsePoolCreation(ctx, log)
-            //     if(pool && isPoolAddress(pool.poolAddress)) await ctx.store.insert(pool); // lets store right away
+            //     if(pool) await ctx.store.insert(pool); // lets store right away for future use
             // }
 
-            if (isSwap(log)) {
-                const swap = await parseSwap(ctx, log, transactions.find(t => t.hash === log.transactionHash)!)
+             if (isSwap(log)) {
+                const swap = await parseSwap(ctx, log, transactionMap[log.transactionHash]!)
                 swaps.push(swap!);
             } else if(isPoolPositionMint(log)){
-                // poolMintEventMap[log.transactionHash] = log; // store for processing later
                 mintEvents.addLeft(log.transactionHash, log); // store for processing later
             } else if(isIncreaseLiquidity(log)){
-                // increaseLiquidityEventMap[log.transactionHash] = log; // store for processing later
                 mintEvents.addRight(log.transactionHash, log); // store for processing later
             }else if(isLiquidityBurn(log)){
                 liquidityDecreaseEvents.addLeft(log.transactionHash, log); // store for processing later
@@ -115,25 +115,38 @@ processor.run(db, async (ctx) => {
 
     // lets process the position mint events
     for(let [txHash, poolMint, increase] of mintEvents.getMatchedEntries()) {
-        const mint = await parseMint(ctx, poolMint, increase, transactions.find(t => t.hash === txHash)!)
-        if(mint) mints.push(mint);
+        const result = await parseMint(ctx, poolMint, increase, transactionMap[txHash]!)
+
+        if(result?.position) positions.push(result.position);
+
+        if(result?.mint) mints.push(result.mint);
     }
+
+    // insert position now so they can be used in future processing
+    await ctx.store.insert(positions);
 
     // lets process the liquidity burn events
     for(let [txHash, burn, decrease] of liquidityDecreaseEvents.getMatchedEntries()) {
-        const decreaseLiquidity = await parseLiquidityBurn(ctx, burn, decrease, transactions.find(t => t.hash === txHash)!)
+        const decreaseLiquidity = await parseLiquidityBurn(ctx, burn, decrease, transactionMap[txHash]!)
         if(decreaseLiquidity) liquidityDecreases.push(decreaseLiquidity)
     }
 
     // lets process the collection events
     for(let [txHash, managerCollect, poolCollect] of collectionEvents.getMatchedEntries()) {
-       const collection = await parseCollect(ctx, managerCollect, poolCollect, transactions.find(t => t.hash === txHash)!)
+       const collection = await parseCollect(ctx, managerCollect, poolCollect, transactionMap[txHash]!)
          if(collection) collects.push(collection)
+    }
+
+    for(let [trx, rawTrx] of transactions) {
+        if(isBurn(rawTrx)) {
+            const burn = await parseBurn(ctx, rawTrx, trx)
+            if(burn) burns.push(burn);
+        }
     }
 
     // save, order is important!
     await ctx.store.insert(blocks)
-    await ctx.store.insert(transactions)
+    await ctx.store.insert(transactions.map(t => t[0]))
     await ctx.store.insert(swaps)
     await ctx.store.insert(mints)
     await ctx.store.insert(liquidityDecreases)

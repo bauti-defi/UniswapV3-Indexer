@@ -1,7 +1,7 @@
-import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_} from "typeorm"
+import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_, OneToOne as OneToOne_, JoinColumn as JoinColumn_} from "typeorm"
 import * as marshal from "./marshal"
 import {Transaction} from "./transaction.model"
-import {Pool} from "./pool.model"
+import {Position} from "./position.model"
 
 @Entity_()
 export class MintPosition {
@@ -19,20 +19,6 @@ export class MintPosition {
     @Column_("int4", {nullable: false})
     logIndex!: number
 
-    @Index_()
-    @ManyToOne_(() => Pool, {nullable: true})
-    pool!: Pool
-
-    @Column_("int4", {nullable: false})
-    tickLower!: number
-
-    @Column_("int4", {nullable: false})
-    tickUpper!: number
-
-    @Index_()
-    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-    tokenId!: bigint
-
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     amount0!: bigint
 
@@ -45,4 +31,9 @@ export class MintPosition {
     @Index_()
     @Column_("text", {nullable: true})
     recipient!: string | undefined | null
+
+    @Index_({unique: true})
+    @OneToOne_(() => Position, {nullable: true})
+    @JoinColumn_()
+    position!: Position
 }

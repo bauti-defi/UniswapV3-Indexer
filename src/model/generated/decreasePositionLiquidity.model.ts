@@ -1,7 +1,7 @@
 import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_} from "typeorm"
 import * as marshal from "./marshal"
 import {Transaction} from "./transaction.model"
-import {Pool} from "./pool.model"
+import {Position} from "./position.model"
 
 @Entity_()
 export class DecreasePositionLiquidity {
@@ -19,22 +19,6 @@ export class DecreasePositionLiquidity {
     @Column_("int4", {nullable: false})
     logIndex!: number
 
-    @Index_()
-    @ManyToOne_(() => Pool, {nullable: true})
-    pool!: Pool
-
-    @Index_()
-    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-    tokenId!: bigint
-
-    @Index_()
-    @Column_("int4", {nullable: false})
-    tickLower!: number
-
-    @Index_()
-    @Column_("int4", {nullable: false})
-    tickUpper!: number
-
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     liquidityDelta!: bigint
 
@@ -43,4 +27,8 @@ export class DecreasePositionLiquidity {
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     amount1!: bigint
+
+    @Index_()
+    @ManyToOne_(() => Position, {nullable: true})
+    position!: Position
 }

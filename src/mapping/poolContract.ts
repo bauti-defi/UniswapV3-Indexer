@@ -3,7 +3,9 @@ import {Store} from '../db'
 import * as poolSpec from "../abi/pool"
 import {Log} from '../processor'
 import { Swap, Transaction } from '../model'
-import { getPool } from '../pools'
+import { getPoolByAddressThunk } from '../utils/pools'
+
+import { v4 as uuidv4 } from 'uuid';
 
 export const isSwap = (log: Log) => {
     return log.topics[0] === poolSpec.events['Swap'].topic
@@ -11,19 +13,19 @@ export const isSwap = (log: Log) => {
 
 export async function parseSwap(ctx: DataHandlerContext<Store>, log: Log, transaction: Transaction): Promise<Swap | undefined> {
     try {
-        const event = poolSpec.events['Swap'].decode(log)
+        const [_owner, recipient, amount0, amount1, sqrtPriceX96, liquidity, tick] = poolSpec.events['Swap'].decode(log)
 
         return new Swap({
-            id: log.id,
+            id: uuidv4(),
             transaction,
             logIndex: log.logIndex,
-            pool: await getPool(log.address, ctx),
-            recipient: event[1],
-            amount0: event[2],
-            amount1: event[3],
-            sqrtPriceX96: event[4],
-            liquidity: event[5],
-            tick: event[6],
+            pool: await getPoolByAddressThunk(log.address, ctx),
+            recipient,
+            amount0,
+            amount1,
+            sqrtPriceX96,
+            liquidity,
+            tick,
         })
     }
     catch (error) {

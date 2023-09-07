@@ -5,6 +5,8 @@ import {Swap} from "./swap.model"
 import {MintPosition} from "./mintPosition.model"
 import {DecreasePositionLiquidity} from "./decreasePositionLiquidity.model"
 import {CollectionPosition} from "./collectionPosition.model"
+import {IncreasePositionLiquidity} from "./increasePositionLiquidity.model"
+import {BurnPosition} from "./burnPosition.model"
 
 @Entity_()
 export class Transaction {
@@ -52,4 +54,10 @@ export class Transaction {
 
     @OneToMany_(() => CollectionPosition, e => e.transaction)
     collectPositions!: CollectionPosition[]
+
+    @OneToMany_(() => IncreasePositionLiquidity, e => e.transaction)
+    increasePositionLiquidity!: IncreasePositionLiquidity[]
+
+    @OneToMany_(() => BurnPosition, e => e.transaction)
+    burnPositions!: BurnPosition[]
 }

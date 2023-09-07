@@ -21,39 +21,62 @@ type Transaction @entity {
     mintPositions: [MintPosition]! @derivedFrom(field: "transaction")
     decreasePositionLiquidity: [DecreasePositionLiquidity]! @derivedFrom(field: "transaction")
     collectPositions: [CollectionPosition]! @derivedFrom(field: "transaction")
+    increasePositionLiquidity: [IncreasePositionLiquidity]! @derivedFrom(field: "transaction")
+    burnPositions: [BurnPosition]! @derivedFrom(field: "transaction")
 }
 
-type Pool @entity {
+type Pool @entity @index(fields: ["chainId", "poolAddress"], unique: true) {
     id: ID!
-    chainId: Int! @index
+    chainId: Int!
     token0: String! @index
     token1: String! @index
     fee: Int! @index
-    poolAddress: String! @index
+    poolAddress: String!
 
     swaps: [Swap]! @derivedFrom(field: "pool")
-    mintPositions: [MintPosition]! @derivedFrom(field: "pool")
-    decreasePositionLiquidity: [DecreasePositionLiquidity]! @derivedFrom(field: "pool")
-    collectPositions: [CollectionPosition]! @derivedFrom(field: "pool")
+    positions: [Position]! @derivedFrom(field: "pool")
+}
+
+type Position @entity {
+    id: ID!
+    pool: Pool!
+    tickLower: Int! @index
+    tickUpper: Int! @index
+    tokenId: BigInt! @index # TODO: should be @unique
+
+    mint: MintPosition @derivedFrom(field: "position")
+    decreaseLiquidity: [DecreasePositionLiquidity]! @derivedFrom(field: "position")
+    increaseLiquidity: [IncreasePositionLiquidity]! @derivedFrom(field: "position")
+    collects: [CollectionPosition]! @derivedFrom(field: "position")
+    burn: BurnPosition @derivedFrom(field: "position")
 }
 
 type MintPosition @entity {
     id: ID!
-    transaction: Transaction!
+    transaction: Transaction! 
     logIndex: Int!
-    pool: Pool!
-    tickLower: Int!
-    tickUpper: Int!
-    tokenId: BigInt! @index
     amount0: BigInt!
     amount1: BigInt!
     liquidity: BigInt!
     recipient: String @index
+
+    position: Position! @unique
+}
+
+type IncreasePositionLiquidity @entity {
+    id: ID!
+    transaction: Transaction! 
+    logIndex: Int!
+    liquidityDelta: BigInt!
+    amount0: BigInt!
+    amount1: BigInt!
+
+    position: Position!
 }
 
 type Swap @entity {
     id: ID!
-    transaction: Transaction!
+    transaction: Transaction! 
     logIndex: Int!
     pool: Pool!
     recipient: String @index
@@ -66,33 +89,30 @@ type Swap @entity {
 
 type DecreasePositionLiquidity @entity {
     id: ID!
-    transaction: Transaction!
+    transaction: Transaction! 
     logIndex: Int!
-    pool: Pool!
-    tokenId: BigInt! @index
-    tickLower: Int! @index
-    tickUpper: Int! @index
     liquidityDelta: BigInt!
     amount0: BigInt!
     amount1: BigInt!
+
+    position: Position!
 }
 
 type CollectionPosition @entity {
     id: ID!
-    transaction: Transaction!
+    transaction: Transaction! 
     logIndex: Int!
-    pool: Pool!
-    tokenId: BigInt! @index
     recipient: String @index
-    tickLower: Int! @index
-    tickUpper: Int! @index
     amount0Collected: BigInt!
     amount1Collected: BigInt!
+
+    position: Position!
 }
 
 type BurnPosition @entity {
     id: ID!
-    transaction: Transaction!
+    transaction: Transaction! 
     transactionIndex: Int!
-    tokenId: BigInt! @index
+    
+    position: Position! @unique
 }

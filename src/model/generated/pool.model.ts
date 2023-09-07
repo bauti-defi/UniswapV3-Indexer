@@ -1,9 +1,8 @@
 import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, Index as Index_, OneToMany as OneToMany_} from "typeorm"
 import {Swap} from "./swap.model"
-import {MintPosition} from "./mintPosition.model"
-import {DecreasePositionLiquidity} from "./decreasePositionLiquidity.model"
-import {CollectionPosition} from "./collectionPosition.model"
+import {Position} from "./position.model"
 
+@Index_(["chainId", "poolAddress"], {unique: true})
 @Entity_()
 export class Pool {
     constructor(props?: Partial<Pool>) {
@@ -13,7 +12,6 @@ export class Pool {
     @PrimaryColumn_()
     id!: string
 
-    @Index_()
     @Column_("int4", {nullable: false})
     chainId!: number
 
@@ -29,19 +27,12 @@ export class Pool {
     @Column_("int4", {nullable: false})
     fee!: number
 
-    @Index_()
     @Column_("text", {nullable: false})
     poolAddress!: string
 
     @OneToMany_(() => Swap, e => e.pool)
     swaps!: Swap[]
 
-    @OneToMany_(() => MintPosition, e => e.pool)
-    mintPositions!: MintPosition[]
-
-    @OneToMany_(() => DecreasePositionLiquidity, e => e.pool)
-    decreasePositionLiquidity!: DecreasePositionLiquidity[]
-
-    @OneToMany_(() => CollectionPosition, e => e.pool)
-    collectPositions!: CollectionPosition[]
+    @OneToMany_(() => Position, e => e.pool)
+    positions!: Position[]
 }

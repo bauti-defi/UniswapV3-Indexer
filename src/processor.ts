@@ -3,7 +3,7 @@ import {lookupArchive} from '@subsquid/archive-registry'
 import * as poolFactoryAbi from './abi/poolFactory'
 import * as poolAbi from './abi/pool'
 import * as positionManagerAbi from './abi/positionManager'
-import { poolAddresses } from './pools'
+import { poolAddresses, poolsOfInterest } from './utils/pools'
 
 const POOL_FACTORY_ADDRESS = '0x1f98431c8ad98523631ae4a59f267346ea31f984'
 const POSITION_MANAGER_ADDRESS = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
@@ -18,6 +18,8 @@ const withPoolCreationIndexing = (process: EvmBatchProcessor) => {
         },
     })
 }
+
+const lowestBlock: number = poolsOfInterest.reduce((acc, pool) => Math.min(acc, pool.deployedAtBlock), Number.MAX_SAFE_INTEGER)
 
 export const processor = new EvmBatchProcessor()
     .setDataSource({
@@ -52,7 +54,7 @@ export const processor = new EvmBatchProcessor()
         ],
         transaction: true,
         range: {
-            from: 121460117,
+            from: lowestBlock,
         },
     })
     .addLog({
@@ -64,7 +66,7 @@ export const processor = new EvmBatchProcessor()
         ],
         transaction: true,
         range: {
-            from: 121460117,
+            from: lowestBlock,
         },
     })
     .addTransaction({
@@ -73,7 +75,7 @@ export const processor = new EvmBatchProcessor()
             positionManagerAbi.functions['burn'].sighash,
         ],
         range: {
-            from: 121460117,
+            from: lowestBlock,
         },
     })
 

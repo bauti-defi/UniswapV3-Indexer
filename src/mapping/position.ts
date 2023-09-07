@@ -1,33 +1,47 @@
 import { DataHandlerContext, Log } from "@subsquid/evm-processor"
 import { Store } from "@subsquid/typeorm-store"
 import { utils } from "web3"
-import { DecreasePositionLiquidity, MintPosition, Swap, Transaction, CollectionPosition, BurnPosition } from "../model"
-import { getPool } from "../pools"
+import { DecreasePositionLiquidity, MintPosition, Swap, Transaction, CollectionPosition, BurnPosition, Position } from "../model"
+import { getPoolByAddressThunk } from "../utils/pools"
 
 import * as poolSpec from "../abi/pool"
 import * as managerSpec from "../abi/positionManager"
 import { BlockTransaction } from "../processor"
+import { getPositionByTokenIdThunk } from "../utils/positions"
+import { v4 as uuidv4 } from 'uuid';
 
-export async function parseMint(ctx: DataHandlerContext<Store>, mintLog: Log, increaseLog: Log, transaction: Transaction): Promise<MintPosition | undefined> {
+type PositionMint = {
+    position: Position
+    mint: MintPosition
+}
+
+export async function parseMint(ctx: DataHandlerContext<Store>, mintLog: Log, increaseLog: Log, transaction: Transaction): Promise<PositionMint | undefined> {
     try {
-        const [_, recipient, tickLower, tickUpper, liquidity, amount0, amount1] = poolSpec.events['Mint'].decode(mintLog)
+        const [_sender, _owner, tickLower, tickUpper, liquidity, amount0, amount1] = poolSpec.events['Mint'].decode(mintLog)
         const [tokenId, _liquidity, _amount0, _amount1] = managerSpec.events['IncreaseLiquidity'].decode(increaseLog)
 
         if(mintLog.transaction?.hash !== increaseLog.transaction?.hash || mintLog.transaction?.hash !== transaction.hash) throw Error('Transaction hash is NOT the same for all logs')
 
-        return new MintPosition({
-            id: mintLog.id,
-            transaction,
-            logIndex: increaseLog.logIndex, // this will always be emitted after the mint event
-            pool: await getPool(utils.toChecksumAddress(mintLog.address), ctx),
-            recipient,
+        const position = new Position({
+            id: uuidv4(),
+            pool: await getPoolByAddressThunk(utils.toChecksumAddress(mintLog.address), ctx),
+            tokenId,
             tickLower,
             tickUpper,
+        })
+
+        const mintPosition = new MintPosition({
+            id: uuidv4(),
+            transaction,
+            logIndex: increaseLog.logIndex, // this will always be emitted after the mint event
+            position,
+            recipient: transaction.from, // TODO: make sure this is correct
             liquidity,
             amount0,
             amount1,
-            tokenId,
         })
+
+        return {position, mint: mintPosition}
     }
     catch (error) {
         ctx.log.error({error, blockNumber: mintLog.block.height, blockHash: mintLog.block.hash, address: mintLog.address}, `Unable to decode event "${mintLog.topics[0]}"`)
@@ -37,19 +51,18 @@ export async function parseMint(ctx: DataHandlerContext<Store>, mintLog: Log, in
 
 export async function parseLiquidityBurn(ctx: DataHandlerContext<Store>, burnLog: Log, decreaseLog: Log, transaction: Transaction): Promise<DecreasePositionLiquidity | undefined> {
     try {
-        const [_owner, tickerLower, tickerUpper, amount, amount0, amount1] = poolSpec.events['Burn'].decode(burnLog)
+        const [_owner, _tickLower, _tickUpper, amount, amount0, amount1] = poolSpec.events['Burn'].decode(burnLog)
         const [tokenId, _liquidity, _amount0, _amount1] = managerSpec.events['DecreaseLiquidity'].decode(decreaseLog)
 
         if(burnLog.transaction?.hash !== decreaseLog.transaction?.hash || burnLog.transaction?.hash !== transaction.hash) throw Error('Transaction hash is NOT the same for all logs')
 
-        return new DecreasePositionLiquidity({
-            id: burnLog.id,
+        const position = await getPositionByTokenIdThunk(tokenId, ctx)
+
+        return position && new DecreasePositionLiquidity({
+            id: uuidv4(),
             transaction,
             logIndex: decreaseLog.logIndex, // this will always be emitted after the burn event
-            pool: await getPool(burnLog.address, ctx),
-            tokenId,
-            tickLower: tickerLower, 
-            tickUpper: tickerUpper,
+            position,
             amount0,
             amount1,
             liquidityDelta: amount
@@ -63,18 +76,17 @@ export async function parseLiquidityBurn(ctx: DataHandlerContext<Store>, burnLog
 export async function parseCollect(ctx: DataHandlerContext<Store>, managerLog: Log, poolLog: Log, transaction: Transaction): Promise<CollectionPosition | undefined> {
     try {
         const [tokenId, recipient, amount0Collected, amount1Collected] = managerSpec.events['Collect'].decode(managerLog)
-        const [_owner, _recipient, tickLower, tickUpper, _amount0Collected, _amount1Collected] = poolSpec.events['Collect'].decode(poolLog);
+        const [_owner, _recipient, _tickLower, _tickUpper, _amount0Collected, _amount1Collected] = poolSpec.events['Collect'].decode(poolLog);
 
         if(managerLog.transaction?.hash !== poolLog.transaction?.hash || managerLog.transaction?.hash !== transaction.hash) throw Error('Transaction hash is NOT the same for all logs')
 
-        return new CollectionPosition({
-            id: managerLog.id,
+        const position = await getPositionByTokenIdThunk(tokenId, ctx)
+
+        return position && new CollectionPosition({
+            id: uuidv4(),
             transaction,
             logIndex: managerLog.logIndex, // this will always be emitted after the collect event
-            pool: await getPool(poolLog.address, ctx),
-            tokenId,
-            tickLower,
-            tickUpper,
+            position,
             recipient,
             amount0Collected,
             amount1Collected,
@@ -89,11 +101,13 @@ export const parseBurn = async (ctx: DataHandlerContext<Store>, rawTrx: BlockTra
     try {
         const [tokenId] = managerSpec.functions['burn'].decode(rawTrx.input)
 
-        return new BurnPosition({
-            id: rawTrx.id,
-            tokenId,
+        const position = await getPositionByTokenIdThunk(tokenId, ctx);
+
+        return position && new BurnPosition({
+            id: uuidv4(),
+            position,
             transaction,
-            transactionIndex: rawTrx.transactionIndex
+            transactionIndex: transaction.transactionIndex
         })
     }catch(error){
         ctx.log.error({error, blockNumber: rawTrx.block.height, blockHash: rawTrx.block.hash, transactionHash: transaction.hash}, `Unable to decode burn transaction`)
