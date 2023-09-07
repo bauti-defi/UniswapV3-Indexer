@@ -19,6 +19,7 @@ type Transaction @entity {
     swaps: [Swap]! @derivedFrom(field: "transaction")
     mintPositions: [MintPosition]! @derivedFrom(field: "transaction")
     decreasePositionLiquidity: [DecreasePositionLiquidity]! @derivedFrom(field: "transaction")
+    collectPositions: [CollectionPosition]! @derivedFrom(field: "transaction")
 }
 
 type Pool @entity {
@@ -32,6 +33,7 @@ type Pool @entity {
     swaps: [Swap]! @derivedFrom(field: "pool")
     mintPositions: [MintPosition]! @derivedFrom(field: "pool")
     decreasePositionLiquidity: [DecreasePositionLiquidity]! @derivedFrom(field: "pool")
+    collectPositions: [CollectionPosition]! @derivedFrom(field: "pool")
 }
 
 type MintPosition @entity {

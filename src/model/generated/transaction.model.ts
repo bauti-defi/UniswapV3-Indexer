@@ -4,6 +4,7 @@ import {Block} from "./block.model"
 import {Swap} from "./swap.model"
 import {MintPosition} from "./mintPosition.model"
 import {DecreasePositionLiquidity} from "./decreasePositionLiquidity.model"
+import {CollectionPosition} from "./collectionPosition.model"
 
 @Entity_()
 export class Transaction {
@@ -45,4 +46,7 @@ export class Transaction {
 
     @OneToMany_(() => DecreasePositionLiquidity, e => e.transaction)
     decreasePositionLiquidity!: DecreasePositionLiquidity[]
+
+    @OneToMany_(() => CollectionPosition, e => e.transaction)
+    collectionPositions!: CollectionPosition[]
 }

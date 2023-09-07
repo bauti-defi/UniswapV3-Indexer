@@ -2,6 +2,7 @@ import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, I
 import {Swap} from "./swap.model"
 import {MintPosition} from "./mintPosition.model"
 import {DecreasePositionLiquidity} from "./decreasePositionLiquidity.model"
+import {CollectionPosition} from "./collectionPosition.model"
 
 @Entity_()
 export class Pool {
@@ -40,4 +41,7 @@ export class Pool {
 
     @OneToMany_(() => DecreasePositionLiquidity, e => e.pool)
     decreasePositionLiquidity!: DecreasePositionLiquidity[]
+
+    @OneToMany_(() => CollectionPosition, e => e.pool)
+    collectionPositions!: CollectionPosition[]
 }
