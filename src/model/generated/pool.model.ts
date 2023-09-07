@@ -43,5 +43,5 @@ export class Pool {
     decreasePositionLiquidity!: DecreasePositionLiquidity[]
 
     @OneToMany_(() => CollectionPosition, e => e.pool)
-    collectionPositions!: CollectionPosition[]
+    collectPositions!: CollectionPosition[]
 }

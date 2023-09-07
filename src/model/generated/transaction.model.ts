@@ -19,6 +19,9 @@ export class Transaction {
     @ManyToOne_(() => Block, {nullable: true})
     block!: Block
 
+    @Column_("int4", {nullable: false})
+    transactionIndex!: number
+
     @Index_()
     @Column_("text", {nullable: false})
     hash!: string
@@ -48,5 +51,5 @@ export class Transaction {
     decreasePositionLiquidity!: DecreasePositionLiquidity[]
 
     @OneToMany_(() => CollectionPosition, e => e.transaction)
-    collectionPositions!: CollectionPosition[]
+    collectPositions!: CollectionPosition[]
 }

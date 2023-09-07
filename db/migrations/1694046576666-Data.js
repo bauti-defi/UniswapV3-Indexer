@@ -1,19 +1,19 @@
-module.exports = class Data1694045468560 {
-    name = 'Data1694045468560'
+module.exports = class Data1694046576666 {
+    name = 'Data1694046576666'
 
     async up(db) {
-        await db.query(`CREATE TABLE "mint_position" ("id" character varying NOT NULL, "tick_lower" integer NOT NULL, "tick_upper" integer NOT NULL, "amount0" numeric NOT NULL, "amount1" numeric NOT NULL, "liquidity" numeric NOT NULL, "token_id" numeric NOT NULL, "recipient" text, "transaction_id" character varying, "pool_id" character varying, CONSTRAINT "PK_34616b042b474a8b168bcd6a03e" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE TABLE "mint_position" ("id" character varying NOT NULL, "log_index" integer NOT NULL, "tick_lower" integer NOT NULL, "tick_upper" integer NOT NULL, "token_id" numeric NOT NULL, "amount0" numeric NOT NULL, "amount1" numeric NOT NULL, "liquidity" numeric NOT NULL, "recipient" text, "transaction_id" character varying, "pool_id" character varying, CONSTRAINT "PK_34616b042b474a8b168bcd6a03e" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_ef29b975a943bef758913c4f53" ON "mint_position" ("transaction_id") `)
         await db.query(`CREATE INDEX "IDX_735bd390d7f96c9d29443b18a3" ON "mint_position" ("pool_id") `)
         await db.query(`CREATE INDEX "IDX_72ef90f44fee5ba417dc2aab1a" ON "mint_position" ("token_id") `)
         await db.query(`CREATE INDEX "IDX_11804999d0bce72926fb79234d" ON "mint_position" ("recipient") `)
-        await db.query(`CREATE TABLE "decrease_position_liquidity" ("id" character varying NOT NULL, "token_id" numeric NOT NULL, "tick_lower" integer NOT NULL, "tick_upper" integer NOT NULL, "liquidity_delta" numeric NOT NULL, "amount0" numeric NOT NULL, "amount1" numeric NOT NULL, "transaction_id" character varying, "pool_id" character varying, CONSTRAINT "PK_bf11bf3933520167f2a18f379bd" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE TABLE "decrease_position_liquidity" ("id" character varying NOT NULL, "log_index" integer NOT NULL, "token_id" numeric NOT NULL, "tick_lower" integer NOT NULL, "tick_upper" integer NOT NULL, "liquidity_delta" numeric NOT NULL, "amount0" numeric NOT NULL, "amount1" numeric NOT NULL, "transaction_id" character varying, "pool_id" character varying, CONSTRAINT "PK_bf11bf3933520167f2a18f379bd" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_cfd3a322107d64a437b15aa800" ON "decrease_position_liquidity" ("transaction_id") `)
         await db.query(`CREATE INDEX "IDX_a9a54e6f04c0735d9d2b83978a" ON "decrease_position_liquidity" ("pool_id") `)
         await db.query(`CREATE INDEX "IDX_24c246a3072462aca1a85de760" ON "decrease_position_liquidity" ("token_id") `)
         await db.query(`CREATE INDEX "IDX_df9f8247259df16c9b0b5204f6" ON "decrease_position_liquidity" ("tick_lower") `)
         await db.query(`CREATE INDEX "IDX_3dce758f01f91d72f348132659" ON "decrease_position_liquidity" ("tick_upper") `)
-        await db.query(`CREATE TABLE "collection_position" ("id" character varying NOT NULL, "token_id" numeric NOT NULL, "recipient" text, "tick_lower" integer NOT NULL, "tick_upper" integer NOT NULL, "amount0_collected" numeric NOT NULL, "amount1_collected" numeric NOT NULL, "transaction_id" character varying, "pool_id" character varying, CONSTRAINT "PK_7dbb5a3433707c33075f74cc6a2" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE TABLE "collection_position" ("id" character varying NOT NULL, "log_index" integer NOT NULL, "token_id" numeric NOT NULL, "recipient" text, "tick_lower" integer NOT NULL, "tick_upper" integer NOT NULL, "amount0_collected" numeric NOT NULL, "amount1_collected" numeric NOT NULL, "transaction_id" character varying, "pool_id" character varying, CONSTRAINT "PK_7dbb5a3433707c33075f74cc6a2" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_8b22da9ea7e4bba366734212cf" ON "collection_position" ("transaction_id") `)
         await db.query(`CREATE INDEX "IDX_787bd0d50a757014fd00164ccf" ON "collection_position" ("pool_id") `)
         await db.query(`CREATE INDEX "IDX_79bb109f26c86f6303c7acf27a" ON "collection_position" ("token_id") `)
@@ -26,13 +26,13 @@ module.exports = class Data1694045468560 {
         await db.query(`CREATE INDEX "IDX_d39ca709b11f93e38e867c1cec" ON "pool" ("token1") `)
         await db.query(`CREATE INDEX "IDX_211ad7aa73f85a0b5590e7b67a" ON "pool" ("fee") `)
         await db.query(`CREATE INDEX "IDX_bde85df65d094fb9c2ffe1f16a" ON "pool" ("pool_address") `)
-        await db.query(`CREATE TABLE "swap" ("id" character varying NOT NULL, "recipient" text, "amount0" numeric NOT NULL, "amount1" numeric NOT NULL, "sqrt_price_x96" numeric NOT NULL, "liquidity" numeric NOT NULL, "tick" integer NOT NULL, "transaction_id" character varying, "pool_id" character varying, CONSTRAINT "PK_4a10d0f359339acef77e7f986d9" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE TABLE "swap" ("id" character varying NOT NULL, "log_index" integer NOT NULL, "recipient" text, "amount0" numeric NOT NULL, "amount1" numeric NOT NULL, "sqrt_price_x96" numeric NOT NULL, "liquidity" numeric NOT NULL, "tick" integer NOT NULL, "transaction_id" character varying, "pool_id" character varying, CONSTRAINT "PK_4a10d0f359339acef77e7f986d9" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_78506c4050ae7cedd50b08c0dc" ON "swap" ("transaction_id") `)
         await db.query(`CREATE INDEX "IDX_e78e7b899d2e3327494e5fe975" ON "swap" ("pool_id") `)
         await db.query(`CREATE INDEX "IDX_f0b35b291cac1c935196170795" ON "swap" ("recipient") `)
         await db.query(`CREATE INDEX "IDX_7b1fec35dcad8a910a60b0fbf6" ON "swap" ("sqrt_price_x96") `)
         await db.query(`CREATE INDEX "IDX_20b0f47fa4e580aa466b329b4f" ON "swap" ("tick") `)
-        await db.query(`CREATE TABLE "transaction" ("id" character varying NOT NULL, "hash" text NOT NULL, "to" text, "from" text, "status" integer, "gas_used" numeric NOT NULL, "block_id" character varying, CONSTRAINT "PK_89eadb93a89810556e1cbcd6ab9" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE TABLE "transaction" ("id" character varying NOT NULL, "transaction_index" integer NOT NULL, "hash" text NOT NULL, "to" text, "from" text, "status" integer, "gas_used" numeric NOT NULL, "block_id" character varying, CONSTRAINT "PK_89eadb93a89810556e1cbcd6ab9" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_c0e1460f3c9eee975fee81002d" ON "transaction" ("block_id") `)
         await db.query(`CREATE INDEX "IDX_de4f0899c41c688529784bc443" ON "transaction" ("hash") `)
         await db.query(`CREATE INDEX "IDX_1713783ebe978fa2ae9654e4bb" ON "transaction" ("to") `)

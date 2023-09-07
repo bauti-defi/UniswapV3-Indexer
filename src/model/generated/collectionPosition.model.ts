@@ -16,6 +16,9 @@ export class CollectionPosition {
     @ManyToOne_(() => Transaction, {nullable: true})
     transaction!: Transaction
 
+    @Column_("int4", {nullable: false})
+    logIndex!: number
+
     @Index_()
     @ManyToOne_(() => Pool, {nullable: true})
     pool!: Pool

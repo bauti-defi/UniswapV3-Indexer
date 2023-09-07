@@ -16,6 +16,9 @@ export class MintPosition {
     @ManyToOne_(() => Transaction, {nullable: true})
     transaction!: Transaction
 
+    @Column_("int4", {nullable: false})
+    logIndex!: number
+
     @Index_()
     @ManyToOne_(() => Pool, {nullable: true})
     pool!: Pool
@@ -26,6 +29,10 @@ export class MintPosition {
     @Column_("int4", {nullable: false})
     tickUpper!: number
 
+    @Index_()
+    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
+    tokenId!: bigint
+
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     amount0!: bigint
 
@@ -34,10 +41,6 @@ export class MintPosition {
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     liquidity!: bigint
-
-    @Index_()
-    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-    tokenId!: bigint
 
     @Index_()
     @Column_("text", {nullable: true})

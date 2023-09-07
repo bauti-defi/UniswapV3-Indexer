@@ -9,7 +9,8 @@ type Block @entity {
 
 type Transaction @entity {
     id: ID!
-    block: Block! 
+    block: Block!
+    transactionIndex: Int! 
     hash: String! @index
     to: String @index
     from: String @index
@@ -39,19 +40,21 @@ type Pool @entity {
 type MintPosition @entity {
     id: ID!
     transaction: Transaction!
+    logIndex: Int!
     pool: Pool!
     tickLower: Int!
     tickUpper: Int!
+    tokenId: BigInt! @index
     amount0: BigInt!
     amount1: BigInt!
     liquidity: BigInt!
-    tokenId: BigInt! @index
     recipient: String @index
 }
 
 type Swap @entity {
     id: ID!
     transaction: Transaction!
+    logIndex: Int!
     pool: Pool!
     recipient: String @index
     amount0: BigInt!
@@ -64,6 +67,7 @@ type Swap @entity {
 type DecreasePositionLiquidity @entity {
     id: ID!
     transaction: Transaction!
+    logIndex: Int!
     pool: Pool!
     tokenId: BigInt! @index
     tickLower: Int! @index
@@ -76,6 +80,7 @@ type DecreasePositionLiquidity @entity {
 type CollectionPosition @entity {
     id: ID!
     transaction: Transaction!
+    logIndex: Int!
     pool: Pool!
     tokenId: BigInt! @index
     recipient: String @index

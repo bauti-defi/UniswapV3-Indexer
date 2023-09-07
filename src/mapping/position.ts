@@ -17,6 +17,7 @@ export async function parseMint(ctx: DataHandlerContext<Store>, mintLog: Log, in
         return new MintPosition({
             id: mintLog.id,
             transaction,
+            logIndex: increaseLog.logIndex, // this will always be emitted after the mint event
             pool: await getPool(utils.toChecksumAddress(mintLog.address), ctx),
             recipient,
             tickLower,
@@ -43,6 +44,7 @@ export async function parseLiquidityBurn(ctx: DataHandlerContext<Store>, burnLog
         return new DecreasePositionLiquidity({
             id: burnLog.id,
             transaction,
+            logIndex: decreaseLog.logIndex, // this will always be emitted after the burn event
             pool: await getPool(burnLog.address, ctx),
             tokenId,
             tickLower: tickerLower, 
@@ -67,6 +69,7 @@ export async function parseCollect(ctx: DataHandlerContext<Store>, managerLog: L
         return new CollectionPosition({
             id: managerLog.id,
             transaction,
+            logIndex: managerLog.logIndex, // this will always be emitted after the collect event
             pool: await getPool(poolLog.address, ctx),
             tokenId,
             tickLower,

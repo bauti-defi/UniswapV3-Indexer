@@ -16,6 +16,7 @@ export async function parseSwap(ctx: DataHandlerContext<Store>, log: Log, transa
         return new Swap({
             id: log.id,
             transaction,
+            logIndex: log.logIndex,
             pool: await getPool(log.address, ctx),
             recipient: event[1],
             amount0: event[2],

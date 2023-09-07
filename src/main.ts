@@ -66,6 +66,7 @@ processor.run(db, async (ctx) => {
             const newTransaction = new Transaction({
                 id: transaction.id,
                 block: newBlock,
+                transactionIndex: transaction.transactionIndex,
                 hash: transaction!.hash,
                 to: transaction!.to,
                 from: transaction!.from,
