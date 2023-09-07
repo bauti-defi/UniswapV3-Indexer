@@ -89,3 +89,10 @@ type CollectionPosition @entity {
     amount0Collected: BigInt!
     amount1Collected: BigInt!
 }
+
+type BurnPosition @entity {
+    id: ID!
+    transaction: Transaction!
+    transactionIndex: Int!
+    tokenId: BigInt! @index
+}

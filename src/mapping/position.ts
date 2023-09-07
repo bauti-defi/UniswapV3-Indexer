@@ -1,11 +1,12 @@
 import { DataHandlerContext, Log } from "@subsquid/evm-processor"
 import { Store } from "@subsquid/typeorm-store"
 import { utils } from "web3"
-import { DecreasePositionLiquidity, MintPosition, Swap, Transaction, CollectionPosition } from "../model"
+import { DecreasePositionLiquidity, MintPosition, Swap, Transaction, CollectionPosition, BurnPosition } from "../model"
 import { getPool } from "../pools"
 
 import * as poolSpec from "../abi/pool"
 import * as managerSpec from "../abi/positionManager"
+import { BlockTransaction } from "../processor"
 
 export async function parseMint(ctx: DataHandlerContext<Store>, mintLog: Log, increaseLog: Log, transaction: Transaction): Promise<MintPosition | undefined> {
     try {
@@ -81,5 +82,20 @@ export async function parseCollect(ctx: DataHandlerContext<Store>, managerLog: L
     }
     catch (error) {
         ctx.log.error({error, blockNumber: managerLog.block.height, blockHash: managerLog.block.hash, address: managerLog.address}, `Unable to decode event "${managerLog.topics[0]}"`)
+    }
+}
+
+export const parseBurn = async (ctx: DataHandlerContext<Store>, rawTrx: BlockTransaction, transaction: Transaction) => {
+    try {
+        const [tokenId] = managerSpec.functions['burn'].decode(rawTrx.input)
+
+        return new BurnPosition({
+            id: rawTrx.id,
+            tokenId,
+            transaction,
+            transactionIndex: rawTrx.transactionIndex
+        })
+    }catch(error){
+        ctx.log.error({error, blockNumber: rawTrx.block.height, blockHash: rawTrx.block.hash, transactionHash: transaction.hash}, `Unable to decode burn transaction`)
     }
 }

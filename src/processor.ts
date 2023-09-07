@@ -67,6 +67,15 @@ export const processor = new EvmBatchProcessor()
             from: 121460117,
         },
     })
+    .addTransaction({
+        to: [POSITION_MANAGER_ADDRESS],
+        sighash: [
+            positionManagerAbi.functions['burn'].sighash,
+        ],
+        range: {
+            from: 121460117,
+        },
+    })
 
 export type Fields = EvmBatchProcessorFields<typeof processor>
 export type Block = BlockHeader<Fields>

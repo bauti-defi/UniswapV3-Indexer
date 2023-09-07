@@ -1,5 +1,5 @@
-module.exports = class Data1694046576666 {
-    name = 'Data1694046576666'
+module.exports = class Data1694048770375 {
+    name = 'Data1694048770375'
 
     async up(db) {
         await db.query(`CREATE TABLE "mint_position" ("id" character varying NOT NULL, "log_index" integer NOT NULL, "tick_lower" integer NOT NULL, "tick_upper" integer NOT NULL, "token_id" numeric NOT NULL, "amount0" numeric NOT NULL, "amount1" numeric NOT NULL, "liquidity" numeric NOT NULL, "recipient" text, "transaction_id" character varying, "pool_id" character varying, CONSTRAINT "PK_34616b042b474a8b168bcd6a03e" PRIMARY KEY ("id"))`)
@@ -42,6 +42,9 @@ module.exports = class Data1694046576666 {
         await db.query(`CREATE INDEX "IDX_4a93f9f420d5e2c32f108975b7" ON "block" ("chain_id") `)
         await db.query(`CREATE INDEX "IDX_f40192bd17405d84ecdb4163bb" ON "block" ("block_number") `)
         await db.query(`CREATE INDEX "IDX_5c67cbcf4960c1a39e5fe25e87" ON "block" ("timestamp") `)
+        await db.query(`CREATE TABLE "burn_position" ("id" character varying NOT NULL, "transaction_index" integer NOT NULL, "token_id" numeric NOT NULL, "transaction_id" character varying, CONSTRAINT "PK_9a5cd641201243502875c046307" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE INDEX "IDX_116ed5a1cb8fe7914b0f04ca44" ON "burn_position" ("transaction_id") `)
+        await db.query(`CREATE INDEX "IDX_0278ead7591b83564d601115d9" ON "burn_position" ("token_id") `)
         await db.query(`ALTER TABLE "mint_position" ADD CONSTRAINT "FK_ef29b975a943bef758913c4f53c" FOREIGN KEY ("transaction_id") REFERENCES "transaction"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
         await db.query(`ALTER TABLE "mint_position" ADD CONSTRAINT "FK_735bd390d7f96c9d29443b18a3b" FOREIGN KEY ("pool_id") REFERENCES "pool"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
         await db.query(`ALTER TABLE "decrease_position_liquidity" ADD CONSTRAINT "FK_cfd3a322107d64a437b15aa8005" FOREIGN KEY ("transaction_id") REFERENCES "transaction"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
@@ -51,6 +54,7 @@ module.exports = class Data1694046576666 {
         await db.query(`ALTER TABLE "swap" ADD CONSTRAINT "FK_78506c4050ae7cedd50b08c0dc5" FOREIGN KEY ("transaction_id") REFERENCES "transaction"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
         await db.query(`ALTER TABLE "swap" ADD CONSTRAINT "FK_e78e7b899d2e3327494e5fe975d" FOREIGN KEY ("pool_id") REFERENCES "pool"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
         await db.query(`ALTER TABLE "transaction" ADD CONSTRAINT "FK_c0e1460f3c9eee975fee81002dc" FOREIGN KEY ("block_id") REFERENCES "block"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
+        await db.query(`ALTER TABLE "burn_position" ADD CONSTRAINT "FK_116ed5a1cb8fe7914b0f04ca440" FOREIGN KEY ("transaction_id") REFERENCES "transaction"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
     }
 
     async down(db) {
@@ -94,6 +98,9 @@ module.exports = class Data1694046576666 {
         await db.query(`DROP INDEX "public"."IDX_4a93f9f420d5e2c32f108975b7"`)
         await db.query(`DROP INDEX "public"."IDX_f40192bd17405d84ecdb4163bb"`)
         await db.query(`DROP INDEX "public"."IDX_5c67cbcf4960c1a39e5fe25e87"`)
+        await db.query(`DROP TABLE "burn_position"`)
+        await db.query(`DROP INDEX "public"."IDX_116ed5a1cb8fe7914b0f04ca44"`)
+        await db.query(`DROP INDEX "public"."IDX_0278ead7591b83564d601115d9"`)
         await db.query(`ALTER TABLE "mint_position" DROP CONSTRAINT "FK_ef29b975a943bef758913c4f53c"`)
         await db.query(`ALTER TABLE "mint_position" DROP CONSTRAINT "FK_735bd390d7f96c9d29443b18a3b"`)
         await db.query(`ALTER TABLE "decrease_position_liquidity" DROP CONSTRAINT "FK_cfd3a322107d64a437b15aa8005"`)
@@ -103,5 +110,6 @@ module.exports = class Data1694046576666 {
         await db.query(`ALTER TABLE "swap" DROP CONSTRAINT "FK_78506c4050ae7cedd50b08c0dc5"`)
         await db.query(`ALTER TABLE "swap" DROP CONSTRAINT "FK_e78e7b899d2e3327494e5fe975d"`)
         await db.query(`ALTER TABLE "transaction" DROP CONSTRAINT "FK_c0e1460f3c9eee975fee81002dc"`)
+        await db.query(`ALTER TABLE "burn_position" DROP CONSTRAINT "FK_116ed5a1cb8fe7914b0f04ca440"`)
     }
 }

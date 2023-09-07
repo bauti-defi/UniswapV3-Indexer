@@ -1,12 +1,13 @@
 import {processor, Log} from './processor'
 import {db} from './db'
-import {Block, CollectionPosition, DecreasePositionLiquidity, MintPosition, Swap, Transaction} from './model'
+import {Block, BurnPosition, CollectionPosition, DecreasePositionLiquidity, MintPosition, Swap, Transaction} from './model'
 import {populatePoolsTable } from './pools'
 import { isLiquidityBurn, isPoolCollection, isPoolPositionMint, isSwap, parseSwap } from './mapping/poolContract'
-import { isCollectPosition, isDecreasePositionLiquidity, isIncreaseLiquidity } from './mapping/positionManagerContract'
+import { isBurn, isCollectPosition, isDecreasePositionLiquidity, isIncreaseLiquidity } from './mapping/positionManagerContract'
 import { parseMint, parseLiquidityBurn } from './mapping/position'
 import Matcher from './matcher'
 import { parseCollect } from './mapping/position'
+import { parseBurn } from './mapping/position'
 
 type ExecutionContext = {
     blocks: Block[]
@@ -15,6 +16,7 @@ type ExecutionContext = {
     mints: MintPosition[]
     liquidityDecreases: DecreasePositionLiquidity[]
     collects: CollectionPosition[]
+    burns: BurnPosition[]
 
     collectionEvents: Matcher<Log, Log>
     liquidityDecreaseEvents: Matcher<Log, Log>
@@ -31,6 +33,7 @@ const newExecutionContext = (): ExecutionContext => {
         mints: [],
         liquidityDecreases: [],
         collects: [],
+        burns: [],
         liquidityDecreaseEvents: new Matcher(),
         collectionEvents: new Matcher(),
         mintEvents: new Matcher(),
@@ -50,7 +53,7 @@ processor.run(db, async (ctx) => {
         ctx.log.debug(`Pools table populated with pools of interest`);
     }
 
-    let {blocks, transactions, swaps, mints, liquidityDecreaseEvents, liquidityDecreases, mintEvents, collectionEvents, collects} = newExecutionContext();
+    let {blocks, transactions, swaps, mints, liquidityDecreaseEvents, liquidityDecreases, mintEvents, collectionEvents, collects, burns} = newExecutionContext();
 
     for (let block of ctx.blocks) {
         const newBlock = new Block({
@@ -75,6 +78,11 @@ processor.run(db, async (ctx) => {
             })
 
             transactions.push(newTransaction);
+
+            if(isBurn(transaction)) {
+                const burn = await parseBurn(ctx, transaction, newTransaction)
+                if(burn) burns.push(burn);
+            }
         }
         
         for (let log of block.logs) {
@@ -130,4 +138,5 @@ processor.run(db, async (ctx) => {
     await ctx.store.insert(mints)
     await ctx.store.insert(liquidityDecreases)
     await ctx.store.insert(collects)
+    await ctx.store.insert(burns)
 })
