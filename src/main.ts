@@ -115,11 +115,10 @@ processor.run(db, async (ctx) => {
 
     // lets process the position mint events
     for(let [txHash, poolMint, increase] of mintEvents.getMatchedEntries()) {
-        const result = await parseMint(ctx, poolMint, increase, transactionMap[txHash]!)
+        const [position, mint] = await parseMint(ctx, poolMint, increase, transactionMap[txHash]!)
 
-        if(result?.position) positions.push(result.position);
-
-        if(result?.mint) mints.push(result.mint);
+        if(position) positions.push(position);
+        if(mint) mints.push(mint);
     }
 
     // insert position now so they can be used in future processing

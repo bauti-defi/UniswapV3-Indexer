@@ -10,12 +10,7 @@ import { BlockTransaction } from "../processor"
 import { getPositionByTokenIdThunk } from "../utils/positions"
 import { v4 as uuidv4 } from 'uuid';
 
-type PositionMint = {
-    position: Position
-    mint: MintPosition
-}
-
-export async function parseMint(ctx: DataHandlerContext<Store>, mintLog: Log, increaseLog: Log, transaction: Transaction): Promise<PositionMint | undefined> {
+export async function parseMint(ctx: DataHandlerContext<Store>, mintLog: Log, increaseLog: Log, transaction: Transaction): Promise<[Position | undefined, MintPosition | undefined]> {
     try {
         const [_sender, _owner, tickLower, tickUpper, liquidity, amount0, amount1] = poolSpec.events['Mint'].decode(mintLog)
         const [tokenId, _liquidity, _amount0, _amount1] = managerSpec.events['IncreaseLiquidity'].decode(increaseLog)
@@ -41,10 +36,12 @@ export async function parseMint(ctx: DataHandlerContext<Store>, mintLog: Log, in
             amount1,
         })
 
-        return {position, mint: mintPosition}
+        return [position, mintPosition]
     }
     catch (error) {
         ctx.log.error({error, blockNumber: mintLog.block.height, blockHash: mintLog.block.hash, address: mintLog.address}, `Unable to decode event "${mintLog.topics[0]}"`)
+        
+        return [undefined, undefined]
     }
 }
 
