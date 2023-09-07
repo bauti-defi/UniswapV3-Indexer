@@ -13,7 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 export async function parseMint(ctx: DataHandlerContext<Store>, mintTrx: BlockTransaction, increaseLog: Log, transaction: Transaction): Promise<[Position, MintPosition] | [undefined, undefined]> {
     try {
         const params = managerSpec.functions['mint'].decode(mintTrx.input)
-        const [token0, token1, fee, tickLower, tickUpper, ..._] = params[0]
+        const [token0, token1, fee, tickLower, tickUpper, _amount0Desired, _amount1Desired, _amount0Min, _amount1Min, recipient, _deadline] = params[0]
         const [tokenId, liquidity, amount0, amount1] = managerSpec.events['IncreaseLiquidity'].decode(increaseLog)
 
         if(mintTrx?.hash !== increaseLog.transaction?.hash || mintTrx?.hash !== transaction.hash) throw Error('Transaction hash is NOT the same for all logs')
@@ -35,7 +35,7 @@ export async function parseMint(ctx: DataHandlerContext<Store>, mintTrx: BlockTr
             transaction,
             logIndex: increaseLog.logIndex, // this will always be emitted after the mint event
             position,
-            recipient: transaction.from, // TODO: make sure this is correct
+            recipient,
             liquidity,
             amount0,
             amount1,
