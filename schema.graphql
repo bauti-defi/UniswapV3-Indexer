@@ -23,6 +23,7 @@ type Transaction @entity {
     collectPositions: [CollectionPosition]! @derivedFrom(field: "transaction")
     increasePositionLiquidity: [IncreasePositionLiquidity]! @derivedFrom(field: "transaction")
     burnPositions: [BurnPosition]! @derivedFrom(field: "transaction")
+    positionTransfers: [PositionTransfer]! @derivedFrom(field: "transaction")
 }
 
 type Pool @entity @index(fields: ["chainId", "poolAddress"], unique: true) {
