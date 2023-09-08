@@ -2,8 +2,19 @@
 
 Index UniswapV3 events and transactions with Squid. Data is fetched from an external archive node and stored in a dockerized PostgreSQL. Table schemas are generated automatically from the GraphQL schema. A GraphQL API server can be optioinally started to query the data.
 
-
 > For more details on how to build and deploy a squid, see the [docs](https://docs.subsquid.io).
+
+## Supported Features
+- Track positions
+    - Mints
+    - Increase liquidity
+    - Decrease liquidity
+    - Collects
+    - Burns
+    - Transfers
+- Track swaps
+- Track pools
+- Track new pool creations
 
 ## Usage
 
