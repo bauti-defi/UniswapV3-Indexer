@@ -6,6 +6,7 @@ import {DecreasePositionLiquidity} from "./decreasePositionLiquidity.model"
 import {IncreasePositionLiquidity} from "./increasePositionLiquidity.model"
 import {CollectionPosition} from "./collectionPosition.model"
 import {BurnPosition} from "./burnPosition.model"
+import {PositionTransfer} from "./positionTransfer.model"
 
 @Entity_()
 export class Position {
@@ -42,4 +43,7 @@ export class Position {
     @OneToMany_(() => CollectionPosition, e => e.position)
     collects!: CollectionPosition[]
 
+
+    @OneToMany_(() => PositionTransfer, e => e.position)
+    transfers!: PositionTransfer[]
 }

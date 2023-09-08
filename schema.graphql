@@ -49,6 +49,17 @@ type Position @entity {
     increaseLiquidity: [IncreasePositionLiquidity]! @derivedFrom(field: "position")
     collects: [CollectionPosition]! @derivedFrom(field: "position")
     burn: BurnPosition @derivedFrom(field: "position")
+    transfers: [PositionTransfer]! @derivedFrom(field: "position")
+}
+
+type PositionTransfer @entity {
+    id: ID!
+    transaction: Transaction! 
+    logIndex: Int!
+    from: String @index
+    to: String @index
+
+    position: Position!
 }
 
 type MintPosition @entity {

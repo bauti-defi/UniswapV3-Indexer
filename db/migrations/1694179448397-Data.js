@@ -1,5 +1,5 @@
-module.exports = class Data1694122894391 {
-    name = 'Data1694122894391'
+module.exports = class Data1694179448397 {
+    name = 'Data1694179448397'
 
     async up(db) {
         await db.query(`CREATE TABLE "decrease_position_liquidity" ("id" character varying NOT NULL, "log_index" integer NOT NULL, "liquidity_delta" numeric NOT NULL, "amount0" numeric NOT NULL, "amount1" numeric NOT NULL, "transaction_id" character varying, "position_id" character varying, CONSTRAINT "PK_bf11bf3933520167f2a18f379bd" PRIMARY KEY ("id"))`)
@@ -12,6 +12,11 @@ module.exports = class Data1694122894391 {
         await db.query(`CREATE INDEX "IDX_8b22da9ea7e4bba366734212cf" ON "collection_position" ("transaction_id") `)
         await db.query(`CREATE INDEX "IDX_06d472357c084bb3cc06415af2" ON "collection_position" ("recipient") `)
         await db.query(`CREATE INDEX "IDX_cd59cb744a959ddeeff8b1c1b5" ON "collection_position" ("position_id") `)
+        await db.query(`CREATE TABLE "position_transfer" ("id" character varying NOT NULL, "log_index" integer NOT NULL, "from" text, "to" text, "transaction_id" character varying, "position_id" character varying, CONSTRAINT "PK_449f7c4d80765c4dd74af619c09" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE INDEX "IDX_eba60b11bc4e3af3924d632b98" ON "position_transfer" ("transaction_id") `)
+        await db.query(`CREATE INDEX "IDX_25c6567523dee6c536b209af42" ON "position_transfer" ("from") `)
+        await db.query(`CREATE INDEX "IDX_9d769397663d7d72bb17293fda" ON "position_transfer" ("to") `)
+        await db.query(`CREATE INDEX "IDX_487752d1e9491b6b521fd08799" ON "position_transfer" ("position_id") `)
         await db.query(`CREATE TABLE "position" ("id" character varying NOT NULL, "tick_lower" integer NOT NULL, "tick_upper" integer NOT NULL, "token_id" numeric NOT NULL, "pool_id" character varying, CONSTRAINT "PK_b7f483581562b4dc62ae1a5b7e2" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_128820371117dcf3915dc01ad3" ON "position" ("pool_id") `)
         await db.query(`CREATE INDEX "IDX_fe2fc9bc8dfb4c0adc294d7f8c" ON "position" ("tick_lower") `)
@@ -51,6 +56,8 @@ module.exports = class Data1694122894391 {
         await db.query(`ALTER TABLE "increase_position_liquidity" ADD CONSTRAINT "FK_3d238dbf0b6ff4c7da78860672b" FOREIGN KEY ("position_id") REFERENCES "position"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
         await db.query(`ALTER TABLE "collection_position" ADD CONSTRAINT "FK_8b22da9ea7e4bba366734212cff" FOREIGN KEY ("transaction_id") REFERENCES "transaction"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
         await db.query(`ALTER TABLE "collection_position" ADD CONSTRAINT "FK_cd59cb744a959ddeeff8b1c1b5d" FOREIGN KEY ("position_id") REFERENCES "position"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
+        await db.query(`ALTER TABLE "position_transfer" ADD CONSTRAINT "FK_eba60b11bc4e3af3924d632b989" FOREIGN KEY ("transaction_id") REFERENCES "transaction"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
+        await db.query(`ALTER TABLE "position_transfer" ADD CONSTRAINT "FK_487752d1e9491b6b521fd087992" FOREIGN KEY ("position_id") REFERENCES "position"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
         await db.query(`ALTER TABLE "position" ADD CONSTRAINT "FK_128820371117dcf3915dc01ad30" FOREIGN KEY ("pool_id") REFERENCES "pool"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
         await db.query(`ALTER TABLE "swap" ADD CONSTRAINT "FK_78506c4050ae7cedd50b08c0dc5" FOREIGN KEY ("transaction_id") REFERENCES "transaction"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
         await db.query(`ALTER TABLE "swap" ADD CONSTRAINT "FK_e78e7b899d2e3327494e5fe975d" FOREIGN KEY ("pool_id") REFERENCES "pool"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
@@ -72,6 +79,11 @@ module.exports = class Data1694122894391 {
         await db.query(`DROP INDEX "public"."IDX_8b22da9ea7e4bba366734212cf"`)
         await db.query(`DROP INDEX "public"."IDX_06d472357c084bb3cc06415af2"`)
         await db.query(`DROP INDEX "public"."IDX_cd59cb744a959ddeeff8b1c1b5"`)
+        await db.query(`DROP TABLE "position_transfer"`)
+        await db.query(`DROP INDEX "public"."IDX_eba60b11bc4e3af3924d632b98"`)
+        await db.query(`DROP INDEX "public"."IDX_25c6567523dee6c536b209af42"`)
+        await db.query(`DROP INDEX "public"."IDX_9d769397663d7d72bb17293fda"`)
+        await db.query(`DROP INDEX "public"."IDX_487752d1e9491b6b521fd08799"`)
         await db.query(`DROP TABLE "position"`)
         await db.query(`DROP INDEX "public"."IDX_128820371117dcf3915dc01ad3"`)
         await db.query(`DROP INDEX "public"."IDX_fe2fc9bc8dfb4c0adc294d7f8c"`)
@@ -111,6 +123,8 @@ module.exports = class Data1694122894391 {
         await db.query(`ALTER TABLE "increase_position_liquidity" DROP CONSTRAINT "FK_3d238dbf0b6ff4c7da78860672b"`)
         await db.query(`ALTER TABLE "collection_position" DROP CONSTRAINT "FK_8b22da9ea7e4bba366734212cff"`)
         await db.query(`ALTER TABLE "collection_position" DROP CONSTRAINT "FK_cd59cb744a959ddeeff8b1c1b5d"`)
+        await db.query(`ALTER TABLE "position_transfer" DROP CONSTRAINT "FK_eba60b11bc4e3af3924d632b989"`)
+        await db.query(`ALTER TABLE "position_transfer" DROP CONSTRAINT "FK_487752d1e9491b6b521fd087992"`)
         await db.query(`ALTER TABLE "position" DROP CONSTRAINT "FK_128820371117dcf3915dc01ad30"`)
         await db.query(`ALTER TABLE "swap" DROP CONSTRAINT "FK_78506c4050ae7cedd50b08c0dc5"`)
         await db.query(`ALTER TABLE "swap" DROP CONSTRAINT "FK_e78e7b899d2e3327494e5fe975d"`)

@@ -20,3 +20,7 @@ export const isBurn = (transaction: BlockTransaction) => {
 export const isMintTransaction = (transaction: BlockTransaction) => {
     return transaction.input.slice(0, 10) === spec.functions['mint'].sighash;
 }
+
+export const isTransferPositionLog = (log: Log) => {
+    return log.topics[0] === spec.events['Transfer'].topic
+}

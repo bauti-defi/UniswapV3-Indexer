@@ -1,10 +1,10 @@
 import {processor, Log, BlockTransaction} from './processor'
 import {db} from './db'
-import {Block, BurnPosition, CollectionPosition, DecreasePositionLiquidity, IncreasePositionLiquidity, MintPosition, Position, Swap, Transaction} from './model'
+import {Block, BurnPosition, CollectionPosition, DecreasePositionLiquidity, IncreasePositionLiquidity, MintPosition, Position, PositionTransfer, Swap, Transaction} from './model'
 import {populatePoolsTable } from './utils/pools'
-import { isLiquidityBurn, isPoolCollection, isPoolPositionMint, isSwap, parseSwap } from './mapping/poolContract'
-import { isBurn, isCollectPosition, isDecreasePositionLiquidity, isIncreaseLiquidity, isMintTransaction } from './mapping/positionManagerContract'
-import { parseMint, parseLiquidityBurn, parseLiquidityIncrease } from './mapping/position'
+import { isLiquidityBurn, isPoolCollection, isPoolPositionMintLog, isSwap, parseSwap } from './mapping/poolContract'
+import { isBurn, isCollectPosition, isDecreasePositionLiquidity, isIncreaseLiquidity, isMintTransaction, isTransferPositionLog } from './mapping/positionManagerContract'
+import { parseMint, parseLiquidityBurn, parseLiquidityIncrease, parseTransfer } from './mapping/position'
 import Matcher from './utils/matcher'
 import { parseCollect } from './mapping/position'
 import { parseBurn } from './mapping/position'
@@ -20,7 +20,9 @@ type ExecutionContext = {
     readonly collects: CollectionPosition[]
     readonly burns: BurnPosition[]
     readonly positions: Position[]
+    readonly transfers: PositionTransfer[]
 
+    readonly positionTransferLogs: Log[]
     readonly transactionMap: Record<string, Transaction>
     readonly collectionEvents: Matcher<Log, Log>
     readonly liquidityDecreaseEvents: Matcher<Log, Log>
@@ -40,7 +42,9 @@ const newExecutionContext = ():  Readonly<ExecutionContext> => {
         collects: [],
         burns: [],
         positions: [],
+        transfers: [],
 
+        positionTransferLogs: [],
         transactionMap: {},
         liquidityDecreaseEvents: new Matcher(),
         collectionEvents: new Matcher(),
@@ -61,7 +65,7 @@ processor.run(db, async (ctx) => {
         ctx.log.info(`Pools table populated with pools of interest`);
     }
 
-    let {blocks, transactionMap, transactions, swaps, mints, liquidityDecreaseEvents, liquidityDecreases, mintEvents, collectionEvents, collects, burns, positions, liquidityIncreases} = newExecutionContext();
+    let {blocks, positionTransferLogs, transfers, transactionMap, transactions, swaps, mints, liquidityDecreaseEvents, liquidityDecreases, mintEvents, collectionEvents, collects, burns, positions, liquidityIncreases} = newExecutionContext();
 
     for (let block of ctx.blocks) {
         const newBlock = new Block({
@@ -103,8 +107,6 @@ processor.run(db, async (ctx) => {
              if (isSwap(log)) {
                 const swap = await parseSwap(ctx, log, transactionMap[log.transactionHash]!)
                 if(swap) swaps.push(swap);
-            } else if(isPoolPositionMint(log)){
-                // mintEvents.addLeft(log.transactionHash, log); // store for processing later
             } else if(isIncreaseLiquidity(log)){
                 mintEvents.addRight(log.transactionHash, log); // store for processing later
             }else if(isLiquidityBurn(log)){
@@ -115,6 +117,8 @@ processor.run(db, async (ctx) => {
                 collectionEvents.addLeft(log.transactionHash, log); // store for processing later
             }else if(isPoolCollection(log)){
                 collectionEvents.addRight(log.transactionHash, log); // store for processing later
+            }else if(isTransferPositionLog(log)){
+                positionTransferLogs.push(log); // store for processing later
             }
         }
     }
@@ -131,6 +135,12 @@ processor.run(db, async (ctx) => {
 
     // insert position now so they can be used in future processing
     await ctx.store.insert(positions);
+
+    // lets process position transfers that are not mints
+    for(let transfer of positionTransferLogs) {
+        const positionTransfer = await parseTransfer(ctx, transfer, transactionMap[transfer.transactionHash]!)
+        if(positionTransfer) transfers.push(positionTransfer);
+    }
 
     // lets process the liquidity increase events
     for(let [txHash, increase] of mintEvents.getUnmatchedRight()) {
@@ -163,6 +173,7 @@ processor.run(db, async (ctx) => {
     await ctx.store.insert(transactions.map(t => t[0]))
     await ctx.store.insert(swaps)
     await ctx.store.insert(mints)
+    await ctx.store.insert(transfers)
     await ctx.store.insert(liquidityIncreases)
     await ctx.store.insert(liquidityDecreases)
     await ctx.store.insert(collects)

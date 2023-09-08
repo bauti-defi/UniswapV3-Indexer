@@ -62,6 +62,7 @@ export const processor = new EvmBatchProcessor()
             positionManagerAbi.events['IncreaseLiquidity'].topic,
             positionManagerAbi.events['DecreaseLiquidity'].topic,
             positionManagerAbi.events['Collect'].topic,
+            positionManagerAbi.events['Transfer'].topic,
         ],
         transaction: true,
         range: {

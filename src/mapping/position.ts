@@ -1,7 +1,7 @@
 import { DataHandlerContext, Log } from "@subsquid/evm-processor"
 import { Store } from "@subsquid/typeorm-store"
 import { utils } from "web3"
-import { DecreasePositionLiquidity, MintPosition, Swap, Transaction, CollectionPosition, BurnPosition, Position, IncreasePositionLiquidity } from "../model"
+import { DecreasePositionLiquidity, MintPosition, Swap, Transaction, CollectionPosition, BurnPosition, Position, IncreasePositionLiquidity, PositionTransfer } from "../model"
 import { calculatePoolAddress, getPoolByAddressThunk, getPoolThunk, isPoolAddressOfInterest } from "../utils/pools"
 
 import * as poolSpec from "../abi/pool"
@@ -134,5 +134,24 @@ export const parseBurn = async (ctx: DataHandlerContext<Store>, rawTrx: BlockTra
         })
     }catch(error){
         ctx.log.error({error, blockNumber: rawTrx.block.height, blockHash: rawTrx.block.hash, transactionHash: transaction.hash}, `Unable to decode burn transaction`)
+    }
+}
+
+export const parseTransfer = async (ctx: DataHandlerContext<Store>, transferLog: Log, transaction: Transaction) => {
+    try {
+        const [from, to, tokenId] = managerSpec.events['Transfer'].decode(transferLog)
+
+        const position = await getPositionByTokenIdThunk(tokenId, ctx);
+
+        return position && new PositionTransfer({
+            id: uuidv4(),
+            position,
+            transaction,
+            logIndex: transferLog.logIndex,
+            from,
+            to,
+        })
+    }catch(error){
+        ctx.log.error({error, blockNumber: transferLog.block.height, blockHash: transferLog.block.hash, transactionHash: transaction.hash}, `Unable to decode burn transaction`)
     }
 }

@@ -33,7 +33,7 @@ export async function parseSwap(ctx: DataHandlerContext<Store>, log: Log, transa
     }
 }
 
-export const isPoolPositionMint = (log: Log) => {
+export const isPoolPositionMintLog = (log: Log) => {
     return log.topics[0] === poolSpec.events['Mint'].topic
 }
 
