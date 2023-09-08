@@ -1,4 +1,4 @@
-# UniswapV3-squid
+# UniswapV3-Indexer
 
 Index UniswapV3 events and transactions with Squid. Data is fetched from an external archive node and stored in a dockerized PostgreSQL. Table schemas are generated automatically from the GraphQL schema. A GraphQL API server can be optioinally started to query the data.
 
