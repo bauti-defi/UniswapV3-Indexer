@@ -171,11 +171,13 @@ processor.run(db, async (ctx) => {
     // save, order is important!
     await ctx.store.insert(blocks)
     await ctx.store.insert(transactions.map(t => t[0]))
-    await ctx.store.insert(swaps)
-    await ctx.store.insert(mints)
-    await ctx.store.insert(transfers)
-    await ctx.store.insert(liquidityIncreases)
-    await ctx.store.insert(liquidityDecreases)
-    await ctx.store.insert(collects)
-    await ctx.store.insert(burns)
+    await Promise.all([
+        ctx.store.insert(swaps),
+        ctx.store.insert(mints),
+        ctx.store.insert(transfers),
+        ctx.store.insert(liquidityIncreases),
+        ctx.store.insert(liquidityDecreases),
+        ctx.store.insert(collects),
+        ctx.store.insert(burns)
+    ])
 })
