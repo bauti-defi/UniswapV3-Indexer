@@ -33,6 +33,9 @@ export class Transaction {
     @Column_("text", {nullable: true})
     to!: string | undefined | null
 
+    @Column_("bool", {nullable: false})
+    toContract!: boolean
+
     @Index_()
     @Column_("text", {nullable: true})
     from!: string | undefined | null

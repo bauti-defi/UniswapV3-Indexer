@@ -41,6 +41,7 @@ export const processor = new EvmBatchProcessor()
                 chainId: true,
                 gasUsed: true,
                 status: true,
+                contractAddress: true,
         }
     })
     .setFinalityConfirmation(10)

@@ -13,6 +13,7 @@ type Transaction @entity {
     transactionIndex: Int! 
     hash: String! @index @unique
     to: String @index
+    toContract: Boolean! 
     from: String @index
     status: Int @index
     gasUsed: BigInt!

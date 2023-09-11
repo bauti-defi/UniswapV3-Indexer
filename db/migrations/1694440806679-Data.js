@@ -1,5 +1,5 @@
-module.exports = class Data1694179710277 {
-    name = 'Data1694179710277'
+module.exports = class Data1694440806679 {
+    name = 'Data1694440806679'
 
     async up(db) {
         await db.query(`CREATE TABLE "decrease_position_liquidity" ("id" character varying NOT NULL, "log_index" integer NOT NULL, "liquidity_delta" numeric NOT NULL, "amount0" numeric NOT NULL, "amount1" numeric NOT NULL, "transaction_id" character varying, "position_id" character varying, CONSTRAINT "PK_bf11bf3933520167f2a18f379bd" PRIMARY KEY ("id"))`)
@@ -40,7 +40,7 @@ module.exports = class Data1694179710277 {
         await db.query(`CREATE TABLE "burn_position" ("id" character varying NOT NULL, "transaction_index" integer NOT NULL, "transaction_id" character varying, "position_id" character varying, CONSTRAINT "REL_0e3eeff82b8efbc41001d413c0" UNIQUE ("position_id"), CONSTRAINT "PK_9a5cd641201243502875c046307" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_116ed5a1cb8fe7914b0f04ca44" ON "burn_position" ("transaction_id") `)
         await db.query(`CREATE UNIQUE INDEX "IDX_0e3eeff82b8efbc41001d413c0" ON "burn_position" ("position_id") `)
-        await db.query(`CREATE TABLE "transaction" ("id" character varying NOT NULL, "transaction_index" integer NOT NULL, "hash" text NOT NULL, "to" text, "from" text, "status" integer, "gas_used" numeric NOT NULL, "block_id" character varying, CONSTRAINT "PK_89eadb93a89810556e1cbcd6ab9" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE TABLE "transaction" ("id" character varying NOT NULL, "transaction_index" integer NOT NULL, "hash" text NOT NULL, "to" text, "to_contract" boolean NOT NULL, "from" text, "status" integer, "gas_used" numeric NOT NULL, "block_id" character varying, CONSTRAINT "PK_89eadb93a89810556e1cbcd6ab9" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_c0e1460f3c9eee975fee81002d" ON "transaction" ("block_id") `)
         await db.query(`CREATE UNIQUE INDEX "IDX_de4f0899c41c688529784bc443" ON "transaction" ("hash") `)
         await db.query(`CREATE INDEX "IDX_1713783ebe978fa2ae9654e4bb" ON "transaction" ("to") `)

@@ -9,6 +9,7 @@ import Matcher from './utils/matcher'
 import { parseCollect } from './mapping/position'
 import { parseBurn } from './mapping/position'
 import { chainId } from './utils/chain'
+import { utils } from 'web3'
 
 type ExecutionContext = {
     readonly blocks: Block[]
@@ -83,8 +84,9 @@ processor.run(db, async (ctx) => {
                 block: newBlock,
                 transactionIndex: rawTrx.transactionIndex,
                 hash: rawTrx!.hash,
-                to: rawTrx!.to,
-                from: rawTrx!.from,
+                to: utils.toChecksumAddress(rawTrx.to ? rawTrx.to : rawTrx.contractAddress!),
+                toContract: rawTrx.contractAddress ? true : false,
+                from: utils.toChecksumAddress(rawTrx!.from),
                 status: rawTrx!.status,
                 gasUsed: rawTrx!.gasUsed
             })

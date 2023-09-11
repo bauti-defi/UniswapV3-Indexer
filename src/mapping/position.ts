@@ -35,7 +35,7 @@ export async function parseMint(ctx: DataHandlerContext<Store>, mintTrx: BlockTr
             transaction,
             logIndex: increaseLog.logIndex, // this will always be emitted after the mint event
             position,
-            recipient,
+            recipient: utils.toChecksumAddress(recipient),
             liquidity,
             amount0,
             amount1,
@@ -89,7 +89,7 @@ export async function parseCollect(ctx: DataHandlerContext<Store>, managerLog: L
             transaction,
             logIndex: managerLog.logIndex, // this will always be emitted after the collect event
             position,
-            recipient,
+            recipient: utils.toChecksumAddress(recipient),
             amount0Collected,
             amount1Collected,
         })
@@ -148,8 +148,8 @@ export const parseTransfer = async (ctx: DataHandlerContext<Store>, transferLog:
             position,
             transaction,
             logIndex: transferLog.logIndex,
-            from,
-            to,
+            from: utils.toChecksumAddress(from),
+            to: utils.toChecksumAddress(to),
         })
     }catch(error){
         ctx.log.error({error, blockNumber: transferLog.block.height, blockHash: transferLog.block.hash, transactionHash: transaction.hash}, `Unable to decode burn transaction`)

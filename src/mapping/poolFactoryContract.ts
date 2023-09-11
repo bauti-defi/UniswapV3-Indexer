@@ -6,6 +6,7 @@ import { Pool } from "../model"
 
 import { v4 as uuidv4 } from 'uuid';
 import { chainId } from "../utils/chain";
+import { utils } from "web3";
 
 export const isPoolCreation = (log: Log) => {
     return log.topics[0] === spec.events['PoolCreated'].topic
@@ -21,7 +22,7 @@ export const parsePoolCreation = (ctx: DataHandlerContext<Store>, log: Log) => {
             token0,
             token1,
             fee,
-            poolAddress,
+            poolAddress: utils.toChecksumAddress(poolAddress),
         })
     }
     catch (error) {

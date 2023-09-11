@@ -6,6 +6,7 @@ import { Swap, Transaction } from '../model'
 import { getPoolByAddressThunk } from '../utils/pools'
 
 import { v4 as uuidv4 } from 'uuid';
+import { utils } from 'web3'
 
 export const isSwap = (log: Log) => {
     return log.topics[0] === poolSpec.events['Swap'].topic
@@ -20,7 +21,7 @@ export async function parseSwap(ctx: DataHandlerContext<Store>, log: Log, transa
             transaction,
             logIndex: log.logIndex,
             pool: await getPoolByAddressThunk(log.address, ctx),
-            recipient,
+            recipient: utils.toChecksumAddress(recipient),
             amount0,
             amount1,
             sqrtPriceX96,
