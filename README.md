@@ -31,7 +31,16 @@ npm i -g @subsquid/cli
 npm install
 ```
 
-2. Build and run the squid
+2. Create a `.env` file in the root directory with the following variables:
+
+```sh
+DB_NAME=squid
+DB_PORT=23798
+GQL_PORT=4350
+CHAIN_ID=42161 # chain to index (42161 = arbitrum)
+```
+
+3. Build and run the squid
 
 ```bash
 sqd codegen # generate models folder
