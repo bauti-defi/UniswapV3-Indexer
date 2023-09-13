@@ -28,48 +28,29 @@ export type Pool = {
     deployedAtBlock: number
 }
 
-const ARB_USDCe = '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8' as const
-const ARB_USDT = '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9' as const
-const ARB_USDC = '0xaf88d065e77c8cC2239327C5EDb3A432268e5831' as const
-const ARB_DAI = '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1' as const
+const USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' as const
+const USDT = '0xdAC17F958D2ee523a2206206994597C13D831ec7' as const
+const DAI = '0x6B175474E89094C44Da98b954EedeAC495271d0F' as const
 
 // pulled manually from arbiscan
 export const poolsOfInterest: readonly Pool[] = [
     {
-        token0: ARB_USDC,
-        token1: ARB_USDCe,
+        token0: USDC,
+        token1: USDT,
         fee: FeeAmount.LOWEST,
-        deployedAtBlock: 99163803 
+        deployedAtBlock: 13609065 
     },
     {
-        token0: ARB_USDC,
-        token1: ARB_USDT,
+        token0: DAI,
+        token1: USDT,
         fee: FeeAmount.LOWEST,
-        deployedAtBlock: 99299098  
+        deployedAtBlock: 15142784  
     },
     {
-        token0: ARB_USDT,
-        token1: ARB_DAI,
+        token0: DAI,
+        token1: USDC,
         fee: FeeAmount.LOWEST,
-        deployedAtBlock: 65190653 
-    },
-    {
-        token0: ARB_USDC,
-        token1: ARB_DAI,
-        fee: FeeAmount.LOWEST,
-        deployedAtBlock: 101196671  
-    },
-    {
-        token0: ARB_USDCe,
-        token1: ARB_DAI,
-        fee: FeeAmount.LOWEST,
-        deployedAtBlock: 65214341 
-    },
-    {
-        token0: ARB_USDCe,
-        token1: ARB_USDT,
-        fee: FeeAmount.LOWEST,
-        deployedAtBlock: 64173428 
+        deployedAtBlock: 13605124 
     }
 ]
 
