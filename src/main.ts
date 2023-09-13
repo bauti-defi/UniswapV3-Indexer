@@ -1,7 +1,6 @@
 import {processor, Log, BlockTransaction} from './processor'
 import {db} from './db'
 import {Block, BurnPosition, CollectionPosition, DecreasePositionLiquidity, IncreasePositionLiquidity, MintPosition, Position, PositionTransfer, Swap, Transaction} from './model'
-import {populatePoolsTable } from './utils/pools'
 import { isLiquidityBurn, isPoolCollection, isPoolPositionMintLog, isSwap, parseSwap } from './mapping/poolContract'
 import { isBurn, isCollectPosition, isDecreasePositionLiquidity, isIncreaseLiquidity, isMintTransaction, isTransferPositionLog } from './mapping/positionManagerContract'
 import { parseMint, parseLiquidityBurn, parseLiquidityIncrease, parseTransfer } from './mapping/position'
@@ -10,6 +9,7 @@ import { parseCollect } from './mapping/position'
 import { parseBurn } from './mapping/position'
 import { chainId } from './utils/chain'
 import { utils } from 'web3'
+import { poolsOfInterest, populatePoolsTable } from './pools'
 
 type ExecutionContext = {
     readonly blocks: Block[]
@@ -60,7 +60,7 @@ let poolsCreated = false
 
 processor.run(db, async (ctx) => {
     if(!poolsCreated) {
-        await populatePoolsTable(ctx);
+        await populatePoolsTable(ctx, poolsOfInterest());
         poolsCreated = true;
 
         ctx.log.info(`Pools table populated with pools of interest`);

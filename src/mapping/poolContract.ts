@@ -3,10 +3,10 @@ import {Store} from '../db'
 import * as poolSpec from "../abi/pool"
 import {Log} from '../processor'
 import { Swap, Transaction } from '../model'
-import { getPoolByAddressThunk } from '../utils/pools'
 
 import { v4 as uuidv4 } from 'uuid';
 import { utils } from 'web3'
+import { getPoolByAddressThunk } from '../pools'
 
 export const isSwap = (log: Log) => {
     return log.topics[0] === poolSpec.events['Swap'].topic

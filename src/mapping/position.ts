@@ -2,13 +2,13 @@ import { DataHandlerContext, Log } from "@subsquid/evm-processor"
 import { Store } from "@subsquid/typeorm-store"
 import { utils } from "web3"
 import { DecreasePositionLiquidity, MintPosition, Swap, Transaction, CollectionPosition, BurnPosition, Position, IncreasePositionLiquidity, PositionTransfer } from "../model"
-import { calculatePoolAddress, getPoolByAddressThunk, getPoolThunk, isPoolAddressOfInterest } from "../utils/pools"
 
 import * as poolSpec from "../abi/pool"
 import * as managerSpec from "../abi/positionManager"
 import { BlockTransaction } from "../processor"
 import { getPositionByTokenIdThunk } from "../utils/positions"
 import { v4 as uuidv4 } from 'uuid';
+import { calculatePoolAddress, getPoolByAddressThunk, isPoolAddressOfInterest } from "../pools"
 
 export async function parseMint(ctx: DataHandlerContext<Store>, mintTrx: BlockTransaction, increaseLog: Log, transaction: Transaction): Promise<[Position, MintPosition] | [undefined, undefined]> {
     try {
