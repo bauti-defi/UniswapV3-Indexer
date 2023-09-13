@@ -1,9 +1,10 @@
 import {EvmBatchProcessor, EvmBatchProcessorFields, BlockHeader, Log as _Log, Transaction as _Transaction} from '@subsquid/evm-processor'
-import {lookupArchive} from '@subsquid/archive-registry'
+import {KnownArchivesEVM, lookupArchive} from '@subsquid/archive-registry'
 import * as poolFactoryAbi from './abi/poolFactory'
 import * as poolAbi from './abi/pool'
 import * as positionManagerAbi from './abi/positionManager'
 import { poolAddresses, poolsOfInterest } from './utils/pools'
+import { chainId } from './utils/chain'
 
 const POOL_FACTORY_ADDRESS = '0x1f98431c8ad98523631ae4a59f267346ea31f984'
 const POSITION_MANAGER_ADDRESS = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
@@ -21,9 +22,17 @@ const withPoolCreationIndexing = (process: EvmBatchProcessor) => {
 
 const lowestBlock: number = poolsOfInterest.reduce((acc, pool) => Math.min(acc, pool.deployedAtBlock), Number.MAX_SAFE_INTEGER)
 
+const chainName = (): KnownArchivesEVM => {
+    switch(chainId()){
+        case 1: return "eth-mainnet"
+        case 42161: return "arbitrum"
+        default: return 'arbitrum'
+    }
+}
+
 export const processor = new EvmBatchProcessor()
     .setDataSource({
-        archive: lookupArchive('arbitrum', {type: 'EVM'}),
+        archive: lookupArchive(chainName(), {type: 'EVM'}),
         // chain: process.env.ARB_RPC_ENDPOINT
     })
     .setFields({
