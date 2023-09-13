@@ -16,6 +16,8 @@ Index UniswapV3 events and transactions with Squid. Data is fetched from an exte
 - Track pools
 - Track new pool creations
 
+> Currently hardcoded to track only arbitrum stablecoin pair pools. Easy to change.
+
 ## Usage
 
 0. Install the [Squid CLI](https://docs.subsquid.io/squid-cli/):
