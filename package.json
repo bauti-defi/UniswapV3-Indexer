@@ -5,11 +5,11 @@
     "build": "rm -rf lib/ && tsc"
   },
   "dependencies": {
-    "@subsquid/archive-registry": "^3.0.0",
-    "@subsquid/evm-processor": "^1.5.1",
-    "@subsquid/graphql-server": "^4.2.0",
-    "@subsquid/typeorm-migration": "^1.2.0",
-    "@subsquid/typeorm-store": "^1.2.0",
+    "@subsquid/archive-registry": "^3.2.0",
+    "@subsquid/evm-processor": "^1.8.2",
+    "@subsquid/graphql-server": "^4.3.0",
+    "@subsquid/typeorm-migration": "^1.2.1",
+    "@subsquid/typeorm-store": "^1.2.2",
     "@subsquid/util-internal-json": "^1.2.0",
     "@uniswap/v3-sdk": "^3.10.0",
     "dotenv": "^16.1.4",
@@ -20,9 +20,9 @@
     "web3": "^4.1.1"
   },
   "devDependencies": {
-    "@subsquid/evm-typegen": "^3.2.0",
-    "@subsquid/squid-gen-evm": "^1.1.0",
-    "@subsquid/typeorm-codegen": "^1.2.0",
+    "@subsquid/evm-typegen": "^3.2.2",
+    "@subsquid/squid-gen-evm": "^1.2.0",
+    "@subsquid/typeorm-codegen": "^1.3.1",
     "@types/node": "^18.16.17",
     "@types/uuid": "^9.0.3",
     "typescript": "~5.1.3"

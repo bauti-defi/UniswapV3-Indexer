@@ -1,7 +1,7 @@
 import {DataHandlerContext} from '@subsquid/evm-processor'
-import {Store} from '../db'
+import {Store} from '../core/db'
 import * as poolSpec from "../abi/pool"
-import {Log} from '../processor'
+import {Log} from '../core/processor'
 import { Swap, Transaction } from '../model'
 
 import { v4 as uuidv4 } from 'uuid';

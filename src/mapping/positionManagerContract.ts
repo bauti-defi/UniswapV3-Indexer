@@ -1,4 +1,4 @@
-import {BlockTransaction, Log} from '../processor'
+import {BlockTransaction, Log} from '../core/processor'
 import * as spec from "../abi/positionManager"
 
 export const isIncreaseLiquidity = (log: Log) => {
