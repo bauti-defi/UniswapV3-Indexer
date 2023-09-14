@@ -5,7 +5,7 @@ import { DecreasePositionLiquidity, MintPosition, Swap, Transaction, CollectionP
 
 import * as poolSpec from "../abi/pool"
 import * as managerSpec from "../abi/positionManager"
-import { BlockTransaction } from "../processor"
+import { BlockTransaction } from "../core/processor"
 import { getPositionByTokenIdThunk } from "../utils/positions"
 import { v4 as uuidv4 } from 'uuid';
 import { calculatePoolAddress, getPoolByAddressThunk, isPoolAddressOfInterest } from "../pools"
