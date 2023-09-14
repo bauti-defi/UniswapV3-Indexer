@@ -36,11 +36,13 @@ npm install
 2. Create a `.env` file in the root directory with the following variables:
 
 ```sh
-DB_NAME=squid
+DB_NAME=uniswap-squid
 DB_PORT=23798
 GQL_PORT=4350
-CHAIN_ID=42161 # chain to index (42161 = arbitrum)
 ```
+
+> Caveat: Use a different DB_NAME for each squid. This also applies to using the same squid on different networks.
+> You will also need to update the DB_NAME inside of docker-compose.yml
 
 3. Build and run the squid
 
@@ -48,7 +50,12 @@ CHAIN_ID=42161 # chain to index (42161 = arbitrum)
 sqd codegen # generate models folder
 sqd up # start postgres container
 sqd migration:generate # generate migration files
-sqd process # start indexing
+
+# index ethereum
+sqd process:eth
+
+# or index arbitrum
+sqd process:arb
 ```
 
 The indexing will start.
