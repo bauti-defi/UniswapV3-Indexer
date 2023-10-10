@@ -4,6 +4,7 @@ import { chainId } from '../utils/chain'
 const name = `squid_process_${chainId()}`
 
 export let db = new TypeormDatabase({
-    stateSchema: name
+    stateSchema: name,
+    supportHotBlocks: true
 })
 export type Store = Store_

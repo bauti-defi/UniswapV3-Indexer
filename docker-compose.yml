@@ -5,8 +5,18 @@ services:
     image: postgres:15
     environment:
       POSTGRES_DB: uniswap-squid
+      DB_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
       - "${DB_PORT}:5432"
       # command: ["postgres", "-c", "log_statement=all"]
     shm_size: 1gb
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user@example.com
+      PGADMIN_DEFAULT_PASSWORD: SuperSecret
+    ports:
+      - "5050:80"
+    depends_on:
+      - db

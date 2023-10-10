@@ -4,6 +4,7 @@ import * as poolAbi from '../abi/pool'
 import * as positionManagerAbi from '../abi/positionManager'
 import { chainId } from '../utils/chain'
 import { poolAddressesOfInterest, poolsOfInterest } from '../pools'
+import { get } from 'http'
 
 const POOL_FACTORY_ADDRESS = '0x1f98431c8ad98523631ae4a59f267346ea31f984'
 const POSITION_MANAGER_ADDRESS = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
@@ -14,15 +15,24 @@ const networkName = (): KnownArchivesEVM => {
     switch(chainId()){
         case 1: return 'eth-mainnet'
         case 42161: return 'arbitrum'
-        default: throw new Error('Unknown network!')
+        default: throw new Error('Unknown network for name!')
+    }
+}
+
+const networkRPC = (): string => {
+    switch(chainId()){
+        case 1: return process.env.ETH_RPC_ENDPOINT!
+        case 42161: return process.env.ARB_RPC_ENDPOINT!
+        default: throw new Error('Unknown network for rpc!')
     }
 }
 
 export const processor = new EvmBatchProcessor()
     .setDataSource({
         archive: lookupArchive(networkName(), {type: 'EVM'}),
-        // chain: process.env.ARB_RPC_ENDPOINT
+        chain: networkRPC()
     })
+    .setChainPollInterval(5000)
     .setFields({
             log: {
                 topics: true,
