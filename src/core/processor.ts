@@ -29,7 +29,6 @@ export const processor = new EvmBatchProcessor()
         archive: lookupArchive(networkName(), {type: 'EVM'}),
         chain: networkRPC()
     })
-    .setChainPollInterval(5000)
     .setFields({
             log: {
                 topics: true,

@@ -51,7 +51,6 @@ export async function parseMint(ctx: DataHandlerContext<Store>, mintTrx: BlockTr
     }
 }
 
-
 export async function parseLiquidityBurn(ctx: DataHandlerContext<Store>, burnLog: Log, decreaseLog: Log, transaction: Transaction): Promise<DecreasePositionLiquidity | undefined> {
     try {
         const [_owner, _tickLower, _tickUpper, amount, amount0, amount1] = poolSpec.events['Burn'].decode(burnLog)
