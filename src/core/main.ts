@@ -1,7 +1,7 @@
 import {processor, Log, BlockTransaction} from './processor'
 import {db} from './db'
 import {Block, BurnPosition, CollectionPosition, DecreasePositionLiquidity, IncreasePositionLiquidity, MintPosition, Position, PositionTransfer, Swap, Transaction} from '../model'
-import { isLiquidityBurn, isPoolCollection, isPoolPositionMintLog, isSwap, parseSwap } from '../mapping/poolContract'
+import { isLiquidityBurn, isPoolCollection, isSwap, parseSwap } from '../mapping/poolContract'
 import { isBurn, isCollectPosition, isDecreasePositionLiquidity, isIncreaseLiquidity, isMintTransaction, isTransferPositionLog } from '../mapping/positionManagerContract'
 import { parseMint, parseLiquidityBurn, parseLiquidityIncrease, parseTransfer } from '../mapping/position'
 import Matcher from '../utils/matcher'
@@ -9,7 +9,8 @@ import { parseCollect } from '../mapping/position'
 import { parseBurn } from '../mapping/position'
 import { chainId } from '../utils/chain'
 import { utils } from 'web3'
-import { poolsOfInterest, populatePoolsTable } from '../pools'
+import { poolAddressesOfInterest, poolsOfInterest, populatePoolsTable } from '../pools'
+import { POSITION_MANAGER_ADDRESS } from './const'
 
 type ExecutionContext = {
     readonly blocks: Block[]
@@ -55,6 +56,9 @@ const newExecutionContext = ():  Readonly<ExecutionContext> => {
     }
 }
 
+const addressesOfInterest: string[] = [...poolAddressesOfInterest, POSITION_MANAGER_ADDRESS]
+
+const isAddressOfInterest = (address: string): boolean => addressesOfInterest.includes(utils.toChecksumAddress(address))
 
 let poolsCreated = false
 
@@ -91,6 +95,12 @@ processor.run(db, async (ctx) => {
                 gasUsed: rawTrx!.gasUsed
             })
 
+            // Only process transactions that are to a pool of interest
+            // we must make this check manually for real-time hotblock indexing
+            if(!isAddressOfInterest(transaction.to!)) {
+                continue;
+            }
+
             transactions.push([transaction, rawTrx]);
             transactionMap[transaction.hash] = transaction;
 
@@ -101,12 +111,18 @@ processor.run(db, async (ctx) => {
         
         for (let log of block.logs) {
 
+            // Only process transactions that are to a pool of interest
+            // we must make this check manually for real-time hotblock indexing
+            if(!isAddressOfInterest(log.address)) {
+                continue
+            }
+
             // if(isPoolCreation(log)) {
             //     const pool = parsePoolCreation(ctx, log)
             //     if(pool) await ctx.store.insert(pool); // lets store right away for future use
             // }
 
-             if (isSwap(log)) {
+            if (isSwap(log)) {
                 const swap = await parseSwap(ctx, log, transactionMap[log.transactionHash]!)
                 if(swap) swaps.push(swap);
             } else if(isIncreaseLiquidity(log)){

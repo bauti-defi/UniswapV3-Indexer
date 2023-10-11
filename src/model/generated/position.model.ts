@@ -1,4 +1,4 @@
-import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_, OneToMany as OneToMany_} from "typeorm"
+import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, Index as Index_, ManyToOne as ManyToOne_, OneToMany as OneToMany_} from "typeorm"
 import * as marshal from "./marshal"
 import {Pool} from "./pool.model"
 import {MintPosition} from "./mintPosition.model"
@@ -8,6 +8,7 @@ import {CollectionPosition} from "./collectionPosition.model"
 import {BurnPosition} from "./burnPosition.model"
 import {PositionTransfer} from "./positionTransfer.model"
 
+@Index_(["chainId", "tokenId"], {unique: true})
 @Entity_()
 export class Position {
     constructor(props?: Partial<Position>) {
@@ -21,6 +22,9 @@ export class Position {
     @ManyToOne_(() => Pool, {nullable: true})
     pool!: Pool
 
+    @Column_("int4", {nullable: false})
+    chainId!: number
+
     @Index_()
     @Column_("int4", {nullable: false})
     tickLower!: number
@@ -29,7 +33,6 @@ export class Position {
     @Column_("int4", {nullable: false})
     tickUpper!: number
 
-    @Index_({unique: true})
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     tokenId!: bigint
 

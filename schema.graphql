@@ -39,12 +39,13 @@ type Pool @entity @index(fields: ["chainId", "poolAddress"], unique: true) {
     positions: [Position]! @derivedFrom(field: "pool")
 }
 
-type Position @entity {
+type Position @entity @index(fields: ["chainId", "tokenId"], unique: true) {
     id: ID!
     pool: Pool!
+    chainId: Int!
     tickLower: Int! @index
     tickUpper: Int! @index
-    tokenId: BigInt! @index @unique
+    tokenId: BigInt! 
 
     mint: MintPosition @derivedFrom(field: "position")
     decreaseLiquidity: [DecreasePositionLiquidity]! @derivedFrom(field: "position")

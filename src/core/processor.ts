@@ -4,10 +4,7 @@ import * as poolAbi from '../abi/pool'
 import * as positionManagerAbi from '../abi/positionManager'
 import { chainId } from '../utils/chain'
 import { poolAddressesOfInterest, poolsOfInterest } from '../pools'
-import { get } from 'http'
-
-const POOL_FACTORY_ADDRESS = '0x1f98431c8ad98523631ae4a59f267346ea31f984'
-const POSITION_MANAGER_ADDRESS = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
+import { POSITION_MANAGER_ADDRESS } from './const'
 
 const lowestBlock: number = poolsOfInterest().reduce((acc, pool) => Math.min(acc, pool.deployedAtBlock), Number.MAX_SAFE_INTEGER)
 

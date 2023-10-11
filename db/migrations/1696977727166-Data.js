@@ -1,5 +1,5 @@
-module.exports = class Data1696949867816 {
-    name = 'Data1696949867816'
+module.exports = class Data1696977727166 {
+    name = 'Data1696977727166'
 
     async up(db) {
         await db.query(`CREATE TABLE "decrease_position_liquidity" ("id" character varying NOT NULL, "log_index" integer NOT NULL, "liquidity_delta" numeric NOT NULL, "amount0" numeric NOT NULL, "amount1" numeric NOT NULL, "transaction_id" character varying, "position_id" character varying, CONSTRAINT "PK_bf11bf3933520167f2a18f379bd" PRIMARY KEY ("id"))`)
@@ -17,11 +17,11 @@ module.exports = class Data1696949867816 {
         await db.query(`CREATE INDEX "IDX_25c6567523dee6c536b209af42" ON "position_transfer" ("from") `)
         await db.query(`CREATE INDEX "IDX_9d769397663d7d72bb17293fda" ON "position_transfer" ("to") `)
         await db.query(`CREATE INDEX "IDX_487752d1e9491b6b521fd08799" ON "position_transfer" ("position_id") `)
-        await db.query(`CREATE TABLE "position" ("id" character varying NOT NULL, "tick_lower" integer NOT NULL, "tick_upper" integer NOT NULL, "token_id" numeric NOT NULL, "pool_id" character varying, CONSTRAINT "PK_b7f483581562b4dc62ae1a5b7e2" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE TABLE "position" ("id" character varying NOT NULL, "chain_id" integer NOT NULL, "tick_lower" integer NOT NULL, "tick_upper" integer NOT NULL, "token_id" numeric NOT NULL, "pool_id" character varying, CONSTRAINT "PK_b7f483581562b4dc62ae1a5b7e2" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_128820371117dcf3915dc01ad3" ON "position" ("pool_id") `)
         await db.query(`CREATE INDEX "IDX_fe2fc9bc8dfb4c0adc294d7f8c" ON "position" ("tick_lower") `)
         await db.query(`CREATE INDEX "IDX_a63621aee4a0e085ad5a008612" ON "position" ("tick_upper") `)
-        await db.query(`CREATE UNIQUE INDEX "IDX_c698a043d388c59154c869435a" ON "position" ("token_id") `)
+        await db.query(`CREATE UNIQUE INDEX "IDX_e4ffde161d990dcc913c63db1a" ON "position" ("chain_id", "token_id") `)
         await db.query(`CREATE TABLE "pool" ("id" character varying NOT NULL, "chain_id" integer NOT NULL, "token0" text NOT NULL, "token1" text NOT NULL, "fee" integer NOT NULL, "pool_address" text NOT NULL, CONSTRAINT "PK_db1bfe411e1516c01120b85f8fe" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_d33ce43928d5ee9e71030dc266" ON "pool" ("token0") `)
         await db.query(`CREATE INDEX "IDX_d39ca709b11f93e38e867c1cec" ON "pool" ("token1") `)
@@ -88,7 +88,7 @@ module.exports = class Data1696949867816 {
         await db.query(`DROP INDEX "public"."IDX_128820371117dcf3915dc01ad3"`)
         await db.query(`DROP INDEX "public"."IDX_fe2fc9bc8dfb4c0adc294d7f8c"`)
         await db.query(`DROP INDEX "public"."IDX_a63621aee4a0e085ad5a008612"`)
-        await db.query(`DROP INDEX "public"."IDX_c698a043d388c59154c869435a"`)
+        await db.query(`DROP INDEX "public"."IDX_e4ffde161d990dcc913c63db1a"`)
         await db.query(`DROP TABLE "pool"`)
         await db.query(`DROP INDEX "public"."IDX_d33ce43928d5ee9e71030dc266"`)
         await db.query(`DROP INDEX "public"."IDX_d39ca709b11f93e38e867c1cec"`)

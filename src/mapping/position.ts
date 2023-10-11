@@ -28,6 +28,7 @@ export async function parseMint(ctx: DataHandlerContext<Store>, mintTrx: BlockTr
             tokenId,
             tickLower,
             tickUpper,
+            chainId: transaction.block.chainId,
         })
 
         const mintPosition = new MintPosition({
