@@ -39,6 +39,8 @@ npm install
 DB_NAME=uniswap-squid
 DB_PORT=23798
 GQL_PORT=4350
+ARB_RPC_ENDPOINT=
+ETH_RPC_ENDPOINT=
 ```
 
 > Caveat: Use a different DB_NAME for each squid. This also applies to using the same squid on different networks.
