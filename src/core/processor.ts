@@ -16,10 +16,31 @@ const networkName = (): KnownArchivesEVM => {
     }
 }
 
-const networkRPC = (): string => {
+const rpcURL = (): string => {
     switch(chainId()){
         case 1: return process.env.ETH_RPC_ENDPOINT!
         case 42161: return process.env.ARB_RPC_ENDPOINT!
+        default: throw new Error('Unknown network for rpc!')
+    }
+}
+
+type ChainRpc = string | {
+    url: string
+    capacity?: number
+    rateLimit?: number
+    requestTimeout?: number
+    maxBatchCallSize?: number
+}
+
+const networkRPC = (): ChainRpc  => {
+    switch(chainId()){
+        case 1: return rpcURL()
+        case 42161: return {
+            url: rpcURL(),
+            maxBatchCallSize: 10, // Arbitrum rpc providers have problems when this is too large
+            requestTimeout: 30_000, // default
+            capacity: 10 // default
+        }
         default: throw new Error('Unknown network for rpc!')
     }
 }
@@ -29,7 +50,7 @@ export const processor = new EvmBatchProcessor()
         archive: lookupArchive(networkName(), {type: 'EVM'}),
         chain: networkRPC()
     })
-    .setChainPollInterval(4000)
+    .setChainPollInterval(10000)
     .setFields({
             log: {
                 topics: true,

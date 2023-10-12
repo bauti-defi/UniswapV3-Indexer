@@ -11,7 +11,6 @@ import { chainId } from '../utils/chain'
 import { utils } from 'web3'
 import { poolAddressesOfInterest, poolsOfInterest, populatePoolsTable } from '../pools'
 import { POSITION_MANAGER_ADDRESS } from './const'
-import { DataHandlerContext } from '@subsquid/evm-processor'
 
 type ExecutionContext = {
     readonly blocks: Block[]
