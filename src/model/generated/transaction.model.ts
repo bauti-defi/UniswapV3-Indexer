@@ -31,14 +31,14 @@ export class Transaction {
 
     @Index_()
     @Column_("text", {nullable: true})
-    to!: string | undefined | null
+    trxTo!: string | undefined | null
 
     @Column_("bool", {nullable: false})
     toContract!: boolean
 
     @Index_()
     @Column_("text", {nullable: true})
-    from!: string | undefined | null
+    trxFrom!: string | undefined | null
 
     @Index_()
     @Column_("int4", {nullable: true})

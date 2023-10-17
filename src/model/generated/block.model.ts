@@ -1,6 +1,7 @@
 import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, Index as Index_, OneToMany as OneToMany_} from "typeorm"
 import {Transaction} from "./transaction.model"
 
+@Index_(["chainId", "blockNumber"], {unique: true})
 @Entity_()
 export class Block {
     constructor(props?: Partial<Block>) {
@@ -10,11 +11,9 @@ export class Block {
     @PrimaryColumn_()
     id!: string
 
-    @Index_()
     @Column_("int4", {nullable: false})
     chainId!: number
 
-    @Index_()
     @Column_("int4", {nullable: false})
     blockNumber!: number
 

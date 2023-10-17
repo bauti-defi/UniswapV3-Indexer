@@ -4,6 +4,7 @@ import { chainId } from "../utils/chain"
 import { ARBI_POOLS_OF_INTEREST } from "./arbitrum"
 import { Pool } from "./types"
 import { ETH_POOLS_OF_INTEREST } from "./ethereum"
+import { OP_POOLS_OF_INTEREST } from "./optimism"
 
 const uniswapFactoryAddress = '0x1F98431c8aD98523631AE4a59f267346ea31F984'
 
@@ -28,6 +29,7 @@ export const getPoolOfInterestFromAddress = (address: string): Pool => {
 export const poolsOfInterest = (): readonly Pool[] => {
     switch(chainId()) {
         case 1: return ETH_POOLS_OF_INTEREST
+        case 10: return OP_POOLS_OF_INTEREST
         case 42161: return ARBI_POOLS_OF_INTEREST
         default: throw new Error(`No pools of interest for chainId ${chainId()}`)
     }
@@ -40,5 +42,6 @@ export const isPoolAddressOfInterest = (address: string) => poolAddressesOfInter
 // we export just to make sure we override with the correct values
 export * from "./arbitrum"
 export * from "./ethereum"
+export * from "./optimism"
 export * from "./persistence"
 export * from "./types"

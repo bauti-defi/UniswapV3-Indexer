@@ -20,11 +20,11 @@ export class PositionTransfer {
 
     @Index_()
     @Column_("text", {nullable: true})
-    from!: string | undefined | null
+    transferFrom!: string | undefined | null
 
     @Index_()
     @Column_("text", {nullable: true})
-    to!: string | undefined | null
+    transferTo!: string | undefined | null
 
     @Index_()
     @ManyToOne_(() => Position, {nullable: true})

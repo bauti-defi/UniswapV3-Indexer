@@ -1,7 +1,7 @@
 import { DataHandlerContext, Log } from "@subsquid/evm-processor"
 import { Store } from "@subsquid/typeorm-store"
 import { utils } from "web3"
-import { DecreasePositionLiquidity, MintPosition, Swap, Transaction, CollectionPosition, BurnPosition, Position, IncreasePositionLiquidity, PositionTransfer } from "../model"
+import { DecreasePositionLiquidity, MintPosition, Transaction, CollectionPosition, BurnPosition, Position, IncreasePositionLiquidity, PositionTransfer } from "../model"
 
 import * as poolSpec from "../abi/pool"
 import * as managerSpec from "../abi/positionManager"
@@ -148,8 +148,8 @@ export const parseTransfer = async (ctx: DataHandlerContext<Store>, transferLog:
             position,
             transaction,
             logIndex: transferLog.logIndex,
-            from: utils.toChecksumAddress(from),
-            to: utils.toChecksumAddress(to),
+            transferFrom: utils.toChecksumAddress(from),
+            transferTo: utils.toChecksumAddress(to),
         })
     }catch(error){
         ctx.log.error({error, blockNumber: transferLog.block.height, blockHash: transferLog.block.hash, transactionHash: transaction.hash}, `Unable to decode burn transaction`)

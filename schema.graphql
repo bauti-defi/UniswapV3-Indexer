@@ -1,7 +1,7 @@
-type Block @entity {
+type Block @entity @index(fields: ["chainId", "blockNumber"], unique: true) {
     id: ID!
-    chainId: Int! @index
-    blockNumber: Int! @index
+    chainId: Int!
+    blockNumber: Int!
     timestamp: DateTime! @index
 
     transactions: [Transaction]! @derivedFrom(field: "block")
@@ -12,9 +12,9 @@ type Transaction @entity {
     block: Block!
     transactionIndex: Int! 
     hash: String! @index @unique
-    to: String @index
+    trxTo: String @index
     toContract: Boolean! 
-    from: String @index
+    trxFrom: String @index
     status: Int @index
     gasUsed: BigInt!
 
@@ -59,8 +59,8 @@ type PositionTransfer @entity {
     id: ID!
     transaction: Transaction! 
     logIndex: Int!
-    from: String @index
-    to: String @index
+    transferFrom: String @index
+    transferTo: String @index
 
     position: Position!
 }

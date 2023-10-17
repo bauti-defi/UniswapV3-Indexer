@@ -58,10 +58,21 @@
         "deps": ["build", "migration:apply"],
         "cmd": ["node", "--require=dotenv/config", "lib/boot-arb.js"]
       },
+      "process:op": {
+        "description": "Load .env and start the squid processor",
+        "deps": ["build", "migration:apply"],
+        "cmd": ["node", "--require=dotenv/config", "lib/boot-op.js"]
+      },
       "process:eth": {
         "description": "Load .env and start the squid processor",
         "deps": ["build", "migration:apply"],
         "cmd": ["node", "--require=dotenv/config", "lib/boot-eth.js"]
+      },
+      "process:op:prod": {
+        "description": "Start the squid processor",
+        "deps": ["migration:apply"],
+        "cmd": ["node", "lib/boot-op.js"],
+        "hidden": true
       },
       "process:arb:prod": {
         "description": "Start the squid processor",

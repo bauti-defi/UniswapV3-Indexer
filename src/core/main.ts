@@ -1,5 +1,5 @@
 import {processor, Log, BlockTransaction} from './processor'
-import {Store, db} from './db'
+import {db} from './db'
 import {Block, BurnPosition, CollectionPosition, DecreasePositionLiquidity, IncreasePositionLiquidity, MintPosition, Position, PositionTransfer, Swap, Transaction} from '../model'
 import { isLiquidityBurn, isPoolCollection, isSwap, parseSwap } from '../mapping/poolContract'
 import { isBurn, isCollectPosition, isDecreasePositionLiquidity, isIncreaseLiquidity, isMintTransaction, isTransferPositionLog } from '../mapping/positionManagerContract'
@@ -11,8 +11,9 @@ import { chainId } from '../utils/chain'
 import { utils } from 'web3'
 import { poolAddressesOfInterest, poolsOfInterest, populatePoolsTable } from '../pools'
 import { POSITION_MANAGER_ADDRESS } from './const'
+import { v4 as uuidv4 } from 'uuid';
 
-type ExecutionContext = {
+type ExecutionContext = Readonly<{
     readonly blocks: Block[]
     readonly transactions: [Transaction, BlockTransaction][]
     readonly swaps: Swap[]
@@ -31,9 +32,9 @@ type ExecutionContext = {
     readonly mintEvents: Matcher<BlockTransaction, Log>
     readonly poolMintEventMap: Record<string, Log>
     readonly increaseLiquidityEventMap: Record<string, Log>
-}
+}>;
 
-const newExecutionContext = ():  Readonly<ExecutionContext> => {
+const newExecutionContext = (): ExecutionContext => {
     return {
         blocks: [],
         transactions: [],
@@ -97,7 +98,7 @@ processor.run(db, async (ctx) => {
 
     for (let block of ctx.blocks) {
         const newBlock = new Block({
-            id: block.header.id,
+            id: uuidv4(),
             chainId: chainId(), 
             blockNumber: block.header.height,
             timestamp: new Date(block.header.timestamp),
@@ -111,9 +112,9 @@ processor.run(db, async (ctx) => {
                 block: newBlock,
                 transactionIndex: rawTrx.transactionIndex,
                 hash: rawTrx!.hash,
-                to: utils.toChecksumAddress(rawTrx.to ? rawTrx.to : rawTrx.contractAddress!),
+                trxTo: utils.toChecksumAddress(rawTrx.to ? rawTrx.to : rawTrx.contractAddress!),
                 toContract: rawTrx.contractAddress ? true : false,
-                from: utils.toChecksumAddress(rawTrx!.from),
+                trxFrom: utils.toChecksumAddress(rawTrx!.from),
                 status: rawTrx!.status,
                 gasUsed: rawTrx!.gasUsed
             })

@@ -11,6 +11,7 @@ const lowestBlock: number = poolsOfInterest().reduce((acc, pool) => Math.min(acc
 const networkName = (): KnownArchivesEVM => {
     switch(chainId()){
         case 1: return 'eth-mainnet'
+        case 10: 'optimism-mainnet'
         case 42161: return 'arbitrum'
         default: throw new Error('Unknown network for name!')
     }
@@ -19,6 +20,7 @@ const networkName = (): KnownArchivesEVM => {
 const rpcURL = (): string => {
     switch(chainId()){
         case 1: return process.env.ETH_RPC_ENDPOINT!
+        case 10: return process.env.OP_RPC_ENDPOINT!
         case 42161: return process.env.ARB_RPC_ENDPOINT!
         default: throw new Error('Unknown network for rpc!')
     }
@@ -35,6 +37,7 @@ type ChainRpc = string | {
 const networkRPC = (): ChainRpc  => {
     switch(chainId()){
         case 1: return rpcURL()
+        case 10: return rpcURL()
         case 42161: return {
             url: rpcURL(),
             maxBatchCallSize: 10, // Arbitrum rpc providers have problems when this is too large
