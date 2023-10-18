@@ -108,7 +108,7 @@ processor.run(db, async (ctx) => {
 
         for(let rawTrx of block.transactions) {
             const transaction = new Transaction({
-                id: rawTrx.id,
+                id: uuidv4(),
                 block: newBlock,
                 transactionIndex: rawTrx.transactionIndex,
                 hash: rawTrx!.hash,
@@ -209,6 +209,7 @@ processor.run(db, async (ctx) => {
 
     // make sure to not persist useless blocks/transactions
     if(shouldPersistExecutionContext(execContext)){
+
         // save, order is important!
         await ctx.store.insert(blocks)
         await ctx.store.insert(transactions.map(t => t[0]))
@@ -222,8 +223,8 @@ processor.run(db, async (ctx) => {
             ctx.store.insert(burns)
         ])
 
-        ctx.log.info("Persisted execution context in DB");
+        ctx.log.debug("Persisted execution context in DB");
     }
     
-    ctx.log.info(getMetrics(execContext));
+    ctx.log.debug(getMetrics(execContext));
 })

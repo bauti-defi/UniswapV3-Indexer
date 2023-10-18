@@ -58,7 +58,7 @@ export async function parseLiquidityBurn(ctx: DataHandlerContext<Store>, burnLog
 
         if(burnLog.transaction?.hash !== decreaseLog.transaction?.hash || burnLog.transaction?.hash !== transaction.hash) throw Error('Transaction hash is NOT the same for all logs')
 
-        const position = await getPositionByTokenIdThunk(tokenId, ctx)
+        const position = await getPositionByTokenIdThunk({tokenId, chainId: transaction.block.chainId, ctx})
 
         return position && new DecreasePositionLiquidity({
             id: uuidv4(),
@@ -82,7 +82,7 @@ export async function parseCollect(ctx: DataHandlerContext<Store>, managerLog: L
 
         if(managerLog.transaction?.hash !== poolLog.transaction?.hash || managerLog.transaction?.hash !== transaction.hash) throw Error('Transaction hash is NOT the same for all logs')
 
-        const position = await getPositionByTokenIdThunk(tokenId, ctx)
+        const position = await getPositionByTokenIdThunk({tokenId, chainId: transaction.block.chainId, ctx})
 
         return position && new CollectionPosition({
             id: uuidv4(),
@@ -103,7 +103,7 @@ export const parseLiquidityIncrease = async (ctx: DataHandlerContext<Store>, inc
     try {
         const [tokenId, liquidity, amount0, amount1] = managerSpec.events['IncreaseLiquidity'].decode(increaseLog)
 
-        const position = await getPositionByTokenIdThunk(tokenId, ctx)
+        const position = await getPositionByTokenIdThunk({tokenId, chainId: transaction.block.chainId, ctx})
 
         return position && new IncreasePositionLiquidity({
             id: uuidv4(),
@@ -124,7 +124,7 @@ export const parseBurn = async (ctx: DataHandlerContext<Store>, rawTrx: BlockTra
     try {
         const [tokenId] = managerSpec.functions['burn'].decode(rawTrx.input)
 
-        const position = await getPositionByTokenIdThunk(tokenId, ctx);
+        const position = await getPositionByTokenIdThunk({tokenId, chainId: transaction.block.chainId, ctx});
 
         return position && new BurnPosition({
             id: uuidv4(),
@@ -141,7 +141,7 @@ export const parseTransfer = async (ctx: DataHandlerContext<Store>, transferLog:
     try {
         const [from, to, tokenId] = managerSpec.events['Transfer'].decode(transferLog)
 
-        const position = await getPositionByTokenIdThunk(tokenId, ctx);
+        const position = await getPositionByTokenIdThunk({tokenId, chainId: transaction.block.chainId, ctx});
 
         return position && new PositionTransfer({
             id: uuidv4(),

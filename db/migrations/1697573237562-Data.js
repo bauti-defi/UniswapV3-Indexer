@@ -1,5 +1,5 @@
-module.exports = class Data1697567357244 {
-    name = 'Data1697567357244'
+module.exports = class Data1697573237562 {
+    name = 'Data1697573237562'
 
     async up(db) {
         await db.query(`CREATE TABLE "decrease_position_liquidity" ("id" character varying NOT NULL, "log_index" integer NOT NULL, "liquidity_delta" numeric NOT NULL, "amount0" numeric NOT NULL, "amount1" numeric NOT NULL, "transaction_id" character varying, "position_id" character varying, CONSTRAINT "PK_bf11bf3933520167f2a18f379bd" PRIMARY KEY ("id"))`)
@@ -41,11 +41,11 @@ module.exports = class Data1697567357244 {
         await db.query(`CREATE INDEX "IDX_116ed5a1cb8fe7914b0f04ca44" ON "burn_position" ("transaction_id") `)
         await db.query(`CREATE UNIQUE INDEX "IDX_0e3eeff82b8efbc41001d413c0" ON "burn_position" ("position_id") `)
         await db.query(`CREATE TABLE "transaction" ("id" character varying NOT NULL, "transaction_index" integer NOT NULL, "hash" text NOT NULL, "trx_to" text, "to_contract" boolean NOT NULL, "trx_from" text, "status" integer, "gas_used" numeric NOT NULL, "block_id" character varying, CONSTRAINT "PK_89eadb93a89810556e1cbcd6ab9" PRIMARY KEY ("id"))`)
-        await db.query(`CREATE INDEX "IDX_c0e1460f3c9eee975fee81002d" ON "transaction" ("block_id") `)
-        await db.query(`CREATE UNIQUE INDEX "IDX_de4f0899c41c688529784bc443" ON "transaction" ("hash") `)
+        await db.query(`CREATE INDEX "IDX_de4f0899c41c688529784bc443" ON "transaction" ("hash") `)
         await db.query(`CREATE INDEX "IDX_8256f2bca3bbd84ef2c5e88fba" ON "transaction" ("trx_to") `)
         await db.query(`CREATE INDEX "IDX_8bef8c7e8d1cd7033b7167d989" ON "transaction" ("trx_from") `)
         await db.query(`CREATE INDEX "IDX_63f749fc7f7178ae1ad85d3b95" ON "transaction" ("status") `)
+        await db.query(`CREATE UNIQUE INDEX "IDX_d00af402701f741f7c44ce5b62" ON "transaction" ("block_id", "hash") `)
         await db.query(`CREATE TABLE "block" ("id" character varying NOT NULL, "chain_id" integer NOT NULL, "block_number" integer NOT NULL, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, CONSTRAINT "PK_d0925763efb591c2e2ffb267572" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_5c67cbcf4960c1a39e5fe25e87" ON "block" ("timestamp") `)
         await db.query(`CREATE UNIQUE INDEX "IDX_e789bb055cf25aa8969ee188b8" ON "block" ("chain_id", "block_number") `)
@@ -107,11 +107,11 @@ module.exports = class Data1697567357244 {
         await db.query(`DROP INDEX "public"."IDX_116ed5a1cb8fe7914b0f04ca44"`)
         await db.query(`DROP INDEX "public"."IDX_0e3eeff82b8efbc41001d413c0"`)
         await db.query(`DROP TABLE "transaction"`)
-        await db.query(`DROP INDEX "public"."IDX_c0e1460f3c9eee975fee81002d"`)
         await db.query(`DROP INDEX "public"."IDX_de4f0899c41c688529784bc443"`)
         await db.query(`DROP INDEX "public"."IDX_8256f2bca3bbd84ef2c5e88fba"`)
         await db.query(`DROP INDEX "public"."IDX_8bef8c7e8d1cd7033b7167d989"`)
         await db.query(`DROP INDEX "public"."IDX_63f749fc7f7178ae1ad85d3b95"`)
+        await db.query(`DROP INDEX "public"."IDX_d00af402701f741f7c44ce5b62"`)
         await db.query(`DROP TABLE "block"`)
         await db.query(`DROP INDEX "public"."IDX_5c67cbcf4960c1a39e5fe25e87"`)
         await db.query(`DROP INDEX "public"."IDX_e789bb055cf25aa8969ee188b8"`)

@@ -5,11 +5,19 @@ import { Store } from "@subsquid/typeorm-store";
 
 const positionCache: Record<string, Position> = {}
 
-export async function getPositionByTokenIdThunk(tokenId: bigint, ctx: DataHandlerContext<Store>): Promise<Position | undefined> {
-    const key = tokenId.toString()
+export async function getPositionByTokenIdThunk({
+    tokenId,
+    chainId,
+    ctx
+}:{
+    tokenId: bigint, 
+    chainId: number,  
+    ctx: DataHandlerContext<Store>
+}): Promise<Position | undefined> {
+    const key = `${tokenId}-${chainId}`
     if(positionCache[key]) return positionCache[key]
 
-    const position = await ctx.store.findOneBy(Position, {tokenId})
+    const position = await ctx.store.findOneBy(Position, {tokenId, chainId})
 
     if(!position) return undefined
 

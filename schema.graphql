@@ -7,11 +7,11 @@ type Block @entity @index(fields: ["chainId", "blockNumber"], unique: true) {
     transactions: [Transaction]! @derivedFrom(field: "block")
 }
 
-type Transaction @entity {
+type Transaction @entity @index(fields: ["block", "hash"], unique: true) {
     id: ID!
     block: Block!
     transactionIndex: Int! 
-    hash: String! @index @unique
+    hash: String! @index
     trxTo: String @index
     toContract: Boolean! 
     trxFrom: String @index

@@ -72,7 +72,7 @@ export const processor = new EvmBatchProcessor()
                 contractAddress: true,
         }
     })
-    .setFinalityConfirmation(10)
+    .setFinalityConfirmation(20)
     .addLog({
         address: poolAddressesOfInterest,
         topic0: [

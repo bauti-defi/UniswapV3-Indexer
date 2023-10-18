@@ -1,4 +1,4 @@
-import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_, OneToMany as OneToMany_} from "typeorm"
+import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, Index as Index_, ManyToOne as ManyToOne_, OneToMany as OneToMany_} from "typeorm"
 import * as marshal from "./marshal"
 import {Block} from "./block.model"
 import {Swap} from "./swap.model"
@@ -9,6 +9,7 @@ import {IncreasePositionLiquidity} from "./increasePositionLiquidity.model"
 import {BurnPosition} from "./burnPosition.model"
 import {PositionTransfer} from "./positionTransfer.model"
 
+@Index_(["block", "hash"], {unique: true})
 @Entity_()
 export class Transaction {
     constructor(props?: Partial<Transaction>) {
@@ -18,14 +19,13 @@ export class Transaction {
     @PrimaryColumn_()
     id!: string
 
-    @Index_()
     @ManyToOne_(() => Block, {nullable: true})
     block!: Block
 
     @Column_("int4", {nullable: false})
     transactionIndex!: number
 
-    @Index_({unique: true})
+    @Index_()
     @Column_("text", {nullable: false})
     hash!: string
 
