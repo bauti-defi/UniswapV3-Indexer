@@ -1,6 +1,6 @@
-import {processor, Log, BlockTransaction} from './processor'
+import {processor} from './processor'
 import {db} from './db'
-import {Block, BurnPosition, CollectionPosition, DecreasePositionLiquidity, IncreasePositionLiquidity, MintPosition, Position, PositionTransfer, Swap, Transaction} from '../model'
+import {Block, Transaction} from '../model'
 import { isLiquidityBurn, isPoolCollection, isSwap, parseSwap } from '../mapping/poolContract'
 import { isBurn, isCollectPosition, isDecreasePositionLiquidity, isIncreaseLiquidity, isMintTransaction, isTransferPositionLog } from '../mapping/positionManagerContract'
 import { parseMint, parseLiquidityBurn, parseLiquidityIncrease, parseTransfer } from '../mapping/position'
@@ -12,27 +12,7 @@ import { utils } from 'web3'
 import { poolAddressesOfInterest, poolsOfInterest, populatePoolsTable } from '../pools'
 import { POSITION_MANAGER_ADDRESS } from './const'
 import { v4 as uuidv4 } from 'uuid';
-
-type ExecutionContext = Readonly<{
-    readonly blocks: Block[]
-    readonly transactions: [Transaction, BlockTransaction][]
-    readonly swaps: Swap[]
-    readonly mints: MintPosition[]
-    readonly liquidityDecreases: DecreasePositionLiquidity[]
-    readonly liquidityIncreases: IncreasePositionLiquidity[]
-    readonly collects: CollectionPosition[]
-    readonly burns: BurnPosition[]
-    readonly positions: Position[]
-    readonly transfers: PositionTransfer[]
-
-    readonly positionTransferLogs: Log[]
-    readonly transactionMap: Record<string, Transaction>
-    readonly collectionEvents: Matcher<Log, Log>
-    readonly liquidityDecreaseEvents: Matcher<Log, Log>
-    readonly mintEvents: Matcher<BlockTransaction, Log>
-    readonly poolMintEventMap: Record<string, Log>
-    readonly increaseLiquidityEventMap: Record<string, Log>
-}>;
+import { ExecutionContext } from './types'
 
 const newExecutionContext = (): ExecutionContext => {
     return {
@@ -226,5 +206,5 @@ processor.run(db, async (ctx) => {
         ctx.log.info("Persisted execution context in DB");
     }
     
-    ctx.log.info(getMetrics(execContext));
+    ctx.log.debug(getMetrics(execContext));
 })

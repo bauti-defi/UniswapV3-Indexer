@@ -5,6 +5,7 @@ import * as positionManagerAbi from '../abi/positionManager'
 import { chainId } from '../utils/chain'
 import { poolAddressesOfInterest, poolsOfInterest } from '../pools'
 import { POSITION_MANAGER_ADDRESS } from './const'
+import { ChainRpc } from './types'
 
 const lowestBlock: number = poolsOfInterest().reduce((acc, pool) => Math.min(acc, pool.deployedAtBlock), Number.MAX_SAFE_INTEGER)
 
@@ -24,14 +25,6 @@ const rpcURL = (): string => {
         case 42161: return process.env.ARB_RPC_ENDPOINT!
         default: throw new Error('Unknown network for rpc!')
     }
-}
-
-type ChainRpc = string | {
-    url: string
-    capacity?: number
-    rateLimit?: number
-    requestTimeout?: number
-    maxBatchCallSize?: number
 }
 
 const networkRPC = (): ChainRpc  => {
