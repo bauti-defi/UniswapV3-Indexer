@@ -203,7 +203,7 @@ processor.run(db, async (ctx) => {
             ctx.store.insert(burns)
         ])
 
-        ctx.log.info("Persisted execution context in DB");
+        ctx.log.info(`Persisted execution context in DB. Block count: ${blocks.length}`);
     }
     
     ctx.log.debug(getMetrics(execContext));
