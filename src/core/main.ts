@@ -59,13 +59,26 @@ function getMetrics(ctx: ExecutionContext): string {
     return JSON.stringify(metrics, null, 2);
 }
 
+function getTimelapseString(start: number, blockCount: number): string {
+    const duration = Date.now() - start;
+    const seconds = Math.floor((duration / 1000) % 60);
+    const minutes = Math.floor((duration / (1000 * 60)) % 60);
+    const hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+
+    return `Processed ${blockCount} blocks in ${hours}h ${minutes}m ${seconds}s`;
+}
+
 const addressesOfInterest: string[] = [...poolAddressesOfInterest, POSITION_MANAGER_ADDRESS]
 
 const isAddressOfInterest = (address: string): boolean => addressesOfInterest.includes(utils.toChecksumAddress(address))
 
 let poolsCreated = false
 
+let start;
+
 processor.run(db, async (ctx) => {
+    start = Date.now();
+
     if(!poolsCreated) {
         await populatePoolsTable(ctx, poolsOfInterest());
         poolsCreated = true;
@@ -207,4 +220,5 @@ processor.run(db, async (ctx) => {
     }
     
     ctx.log.debug(getMetrics(execContext));
+    ctx.log.info(getTimelapseString(start, blocks.length));
 })
