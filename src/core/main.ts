@@ -13,6 +13,11 @@ import { poolAddressesOfInterest, poolsOfInterest, populatePoolsTable } from '..
 import { POSITION_MANAGER_ADDRESS } from './const'
 import { v4 as uuidv4 } from 'uuid';
 import { ExecutionContext } from './types'
+import { populatePositionCache } from '../utils/positions'
+
+let debugMode = true;
+
+const debug = (msg: string) => debugMode && console.info(msg)
 
 const newExecutionContext = (): ExecutionContext => {
     return {
@@ -72,19 +77,21 @@ const addressesOfInterest: string[] = [...poolAddressesOfInterest, POSITION_MANA
 
 const isAddressOfInterest = (address: string): boolean => addressesOfInterest.includes(utils.toChecksumAddress(address))
 
-let poolsCreated = false
+let onStart = true
 
 let start;
 
 processor.run(db, async (ctx) => {
     start = Date.now();
 
-    if(!poolsCreated) {
+    if(onStart) {
         await populatePoolsTable(ctx, poolsOfInterest());
-        poolsCreated = true;
+        await populatePositionCache({ctx, chainId: chainId()})
 
-        ctx.log.info(`Pools table populated with pools of interest`);
+        onStart = false;
     }
+
+    debug("1")
 
     let execContext = newExecutionContext();
     let {blocks, positionTransferLogs, transfers, transactionMap, transactions, swaps, mints, liquidityDecreaseEvents, liquidityDecreases, mintEvents, collectionEvents, collects, burns, positions, liquidityIncreases} = execContext;
@@ -152,6 +159,9 @@ processor.run(db, async (ctx) => {
         }
     }
 
+
+    debug("3")
+
     // lets process the position mint events
     for(let [txHash, poolMint, increase] of mintEvents.getMatchedEntries()) {
         const [position, mint] = await parseMint(ctx, poolMint, increase, transactionMap[txHash])
@@ -162,8 +172,11 @@ processor.run(db, async (ctx) => {
         }
     }
 
-    // insert position now so they can be used in future processing
+    // !! @dev: insert position now so they can be used in future processing.
+    // moving this operation will break assumptions of the getPositionByTokenIdThunk function
     await ctx.store.insert(positions);
+
+    debug("4")
 
     // lets process position transfers that are not mints
     for(let transfer of positionTransferLogs) {
@@ -172,12 +185,16 @@ processor.run(db, async (ctx) => {
         if(positionTransfer) transfers.push(positionTransfer);
     }
 
+    debug("5")
+
     // lets process the liquidity increase events
     for(let [txHash, increase] of mintEvents.getUnmatchedRight()) {
         const increaseLiquidity = await parseLiquidityIncrease(ctx, increase, transactionMap[txHash])
 
         if(increaseLiquidity) liquidityIncreases.push(increaseLiquidity)
     }
+
+    debug("6")
 
     // lets process the liquidity burn events
     for(let [txHash, burn, decrease] of liquidityDecreaseEvents.getMatchedEntries()) {
@@ -186,12 +203,16 @@ processor.run(db, async (ctx) => {
         if(decreaseLiquidity) liquidityDecreases.push(decreaseLiquidity)
     }
 
+    debug("7")
+
     // lets process the collection events
     for(let [txHash, managerCollect, poolCollect] of collectionEvents.getMatchedEntries()) {
         const collection = await parseCollect(ctx, managerCollect, poolCollect, transactionMap[txHash])
 
         if(collection) collects.push(collection)
     }
+
+    debug("8")
 
     for(let [trx, rawTrx] of transactions) {
         if(isBurn(rawTrx)) {
@@ -200,25 +221,27 @@ processor.run(db, async (ctx) => {
         }
     }
 
+    debug("9")
+
     // make sure to not persist useless blocks/transactions
     if(shouldPersistExecutionContext(execContext)){
 
         // save, order is important!
-        await ctx.store.insert(blocks)
-        await ctx.store.insert(transactions.map(t => t[0]))
+        await ctx.store.insert(blocks).then(() => debug("blocks inserted"))
+        await ctx.store.insert(transactions.map(t => t[0])).then(() => debug("transactions inserted"))
         await Promise.all([
-            ctx.store.insert(swaps),
-            ctx.store.insert(mints),
-            ctx.store.insert(transfers),
-            ctx.store.insert(liquidityIncreases),
-            ctx.store.insert(liquidityDecreases),
-            ctx.store.insert(collects),
-            ctx.store.insert(burns)
+            ctx.store.insert(swaps).then(() => debug("swaps inserted")),
+            ctx.store.insert(mints).then(() => debug("mints inserted")),
+            ctx.store.insert(transfers).then(() => debug("transfers inserted")),
+            ctx.store.insert(liquidityIncreases).then(() => debug("liquidityIncreases inserted")),
+            ctx.store.insert(liquidityDecreases).then(() => debug("liquidityDecreases inserted")),
+            ctx.store.insert(collects).then(() => debug("collects inserted")),
+            ctx.store.insert(burns).then(() => debug("burns inserted")),
         ])
 
         ctx.log.info(`Persisted execution context in DB. Block count: ${blocks.length}`);
     }
     
-    ctx.log.debug(getMetrics(execContext));
+    ctx.log.info(getMetrics(execContext));
     ctx.log.info(getTimelapseString(start, blocks.length));
 })
