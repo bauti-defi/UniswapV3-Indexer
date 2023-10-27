@@ -91,8 +91,6 @@ processor.run(db, async (ctx) => {
         onStart = false;
     }
 
-    debug("1")
-
     let execContext = newExecutionContext();
     let {blocks, positionTransferLogs, transfers, transactionMap, transactions, swaps, mints, liquidityDecreaseEvents, liquidityDecreases, mintEvents, collectionEvents, collects, burns, positions, liquidityIncreases} = execContext;
 
@@ -159,9 +157,6 @@ processor.run(db, async (ctx) => {
         }
     }
 
-
-    debug("3")
-
     // lets process the position mint events
     for(let [txHash, poolMint, increase] of mintEvents.getMatchedEntries()) {
         const [position, mint] = await parseMint(ctx, poolMint, increase, transactionMap[txHash])
@@ -176,16 +171,12 @@ processor.run(db, async (ctx) => {
     // moving this operation will break assumptions of the getPositionByTokenIdThunk function
     await ctx.store.insert(positions);
 
-    debug("4")
-
     // lets process position transfers that are not mints
     for(let transfer of positionTransferLogs) {
         const positionTransfer = await parseTransfer(ctx, transfer, transactionMap[transfer.transactionHash])
 
         if(positionTransfer) transfers.push(positionTransfer);
     }
-
-    debug("5")
 
     // lets process the liquidity increase events
     for(let [txHash, increase] of mintEvents.getUnmatchedRight()) {
@@ -194,16 +185,12 @@ processor.run(db, async (ctx) => {
         if(increaseLiquidity) liquidityIncreases.push(increaseLiquidity)
     }
 
-    debug("6")
-
     // lets process the liquidity burn events
     for(let [txHash, burn, decrease] of liquidityDecreaseEvents.getMatchedEntries()) {
         const decreaseLiquidity = await parseLiquidityBurn(ctx, burn, decrease, transactionMap[txHash])
 
         if(decreaseLiquidity) liquidityDecreases.push(decreaseLiquidity)
     }
-
-    debug("7")
 
     // lets process the collection events
     for(let [txHash, managerCollect, poolCollect] of collectionEvents.getMatchedEntries()) {
@@ -212,16 +199,12 @@ processor.run(db, async (ctx) => {
         if(collection) collects.push(collection)
     }
 
-    debug("8")
-
     for(let [trx, rawTrx] of transactions) {
         if(isBurn(rawTrx)) {
             const burn = await parseBurn(ctx, rawTrx, trx)
             if(burn) burns.push(burn);
         }
     }
-
-    debug("9")
 
     // make sure to not persist useless blocks/transactions
     if(shouldPersistExecutionContext(execContext)){
