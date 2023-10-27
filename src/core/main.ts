@@ -221,8 +221,6 @@ processor.run(db, async (ctx) => {
             ctx.store.insert(collects).then(() => debug("collects inserted")),
             ctx.store.insert(burns).then(() => debug("burns inserted")),
         ])
-
-        ctx.log.info(`Persisted execution context in DB. Block count: ${blocks.length}`);
     }
     
     ctx.log.info(getMetrics(execContext));
