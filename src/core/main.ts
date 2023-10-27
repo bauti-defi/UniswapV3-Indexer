@@ -13,6 +13,11 @@ import { poolAddressesOfInterest, poolsOfInterest, populatePoolsTable } from '..
 import { POSITION_MANAGER_ADDRESS } from './const'
 import { v4 as uuidv4 } from 'uuid';
 import { ExecutionContext } from './types'
+import { populatePositionCache } from '../utils/positions'
+
+let debugMode = true;
+
+const debug = (msg: string) => debugMode && console.info(msg)
 
 const newExecutionContext = (): ExecutionContext => {
     return {
@@ -59,18 +64,31 @@ function getMetrics(ctx: ExecutionContext): string {
     return JSON.stringify(metrics, null, 2);
 }
 
+function getTimelapseString(start: number, blockCount: number): string {
+    const duration = Date.now() - start;
+    const seconds = Math.floor((duration / 1000) % 60);
+    const minutes = Math.floor((duration / (1000 * 60)) % 60);
+    const hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+
+    return `Processed ${blockCount} blocks in ${hours}h ${minutes}m ${seconds}s`;
+}
+
 const addressesOfInterest: string[] = [...poolAddressesOfInterest, POSITION_MANAGER_ADDRESS]
 
 const isAddressOfInterest = (address: string): boolean => addressesOfInterest.includes(utils.toChecksumAddress(address))
 
-let poolsCreated = false
+let onStart = true
+
+let start;
 
 processor.run(db, async (ctx) => {
-    if(!poolsCreated) {
-        await populatePoolsTable(ctx, poolsOfInterest());
-        poolsCreated = true;
+    start = Date.now();
 
-        ctx.log.info(`Pools table populated with pools of interest`);
+    if(onStart) {
+        await populatePoolsTable(ctx, poolsOfInterest());
+        await populatePositionCache({ctx, chainId: chainId()})
+
+        onStart = false;
     }
 
     let execContext = newExecutionContext();
@@ -149,7 +167,8 @@ processor.run(db, async (ctx) => {
         }
     }
 
-    // insert position now so they can be used in future processing
+    // !! @dev: insert position now so they can be used in future processing.
+    // moving this operation will break assumptions of the getPositionByTokenIdThunk function
     await ctx.store.insert(positions);
 
     // lets process position transfers that are not mints
@@ -191,20 +210,19 @@ processor.run(db, async (ctx) => {
     if(shouldPersistExecutionContext(execContext)){
 
         // save, order is important!
-        await ctx.store.insert(blocks)
-        await ctx.store.insert(transactions.map(t => t[0]))
+        await ctx.store.insert(blocks).then(() => debug("blocks inserted"))
+        await ctx.store.insert(transactions.map(t => t[0])).then(() => debug("transactions inserted"))
         await Promise.all([
-            ctx.store.insert(swaps),
-            ctx.store.insert(mints),
-            ctx.store.insert(transfers),
-            ctx.store.insert(liquidityIncreases),
-            ctx.store.insert(liquidityDecreases),
-            ctx.store.insert(collects),
-            ctx.store.insert(burns)
+            ctx.store.insert(swaps).then(() => debug("swaps inserted")),
+            ctx.store.insert(mints).then(() => debug("mints inserted")),
+            ctx.store.insert(transfers).then(() => debug("transfers inserted")),
+            ctx.store.insert(liquidityIncreases).then(() => debug("liquidityIncreases inserted")),
+            ctx.store.insert(liquidityDecreases).then(() => debug("liquidityDecreases inserted")),
+            ctx.store.insert(collects).then(() => debug("collects inserted")),
+            ctx.store.insert(burns).then(() => debug("burns inserted")),
         ])
-
-        ctx.log.info(`Persisted execution context in DB. Block count: ${blocks.length}`);
     }
     
-    ctx.log.debug(getMetrics(execContext));
+    ctx.log.info(getMetrics(execContext));
+    ctx.log.info(getTimelapseString(start, blocks.length));
 })

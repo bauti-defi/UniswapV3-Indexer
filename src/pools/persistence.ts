@@ -45,4 +45,6 @@ export const populatePoolsTable = async (ctx: DataHandlerContext<Store>, pools: 
 
         if(!existing) return ctx.store.insert(p)
     }))
+
+    ctx.log.info(`Populated pools table with ${models.length} pools`);
 }

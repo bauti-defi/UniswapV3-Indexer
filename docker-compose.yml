@@ -4,7 +4,7 @@ services:
   db:
     image: postgres:15
     environment:
-      POSTGRES_DB: uniswap-squid
+      POSTGRES_DB: uniswap_squid
       DB_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
@@ -14,8 +14,8 @@ services:
   pgadmin:
     image: dpage/pgadmin4
     environment:
-      PGADMIN_DEFAULT_EMAIL: user@example.com
-      PGADMIN_DEFAULT_PASSWORD: SuperSecret
+      PGADMIN_DEFAULT_EMAIL: a@a.com
+      PGADMIN_DEFAULT_PASSWORD: a
     ports:
       - "5050:80"
     depends_on:
