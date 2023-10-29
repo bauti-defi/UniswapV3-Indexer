@@ -47,7 +47,7 @@ const networkRPC = (): ChainRpc  => {
         case 10: return rpcURL()
         case 42161: return {
             url: rpcURL(),
-            maxBatchCallSize: 10, // Arbitrum rpc providers have problems when this is too large
+            maxBatchCallSize: 30, // Arbitrum rpc providers have problems when this is too large
             rateLimit: 5, 
             capacity: 5 
         }
