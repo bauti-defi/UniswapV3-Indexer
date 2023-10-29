@@ -42,7 +42,7 @@ const networkRPC = (): ChainRpc  => {
             url: rpcURL(),
             maxBatchCallSize: 100,
             capacity: 5,
-            requestTimeout: 2
+            rateLimit: 2
         }
         case 10: return rpcURL()
         case 42161: return {
