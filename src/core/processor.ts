@@ -27,15 +27,29 @@ const rpcURL = (): string => {
     }
 }
 
+/**
+ * 
+ * url: rpc endpoint
+ * maxBatchCallSize: max number of calls in a batch
+ * rateLimit: number of requests per second
+ * capacity: number of concuerrent connections
+ * requestTimeout: timeout in seconds
+ * 
+ */
 const networkRPC = (): ChainRpc  => {
     switch(chainId()){
-        case 1: return rpcURL()
+        case 1: return {
+            url: rpcURL(),
+            maxBatchCallSize: 100,
+            capacity: 5,
+            requestTimeout: 2
+        }
         case 10: return rpcURL()
         case 42161: return {
             url: rpcURL(),
             maxBatchCallSize: 10, // Arbitrum rpc providers have problems when this is too large
-            requestTimeout: 30_000 * 2, // default * 2
-            capacity: 100 // default = 10
+            rateLimit: 2, 
+            capacity: 5 
         }
         default: throw new Error('Unknown network for rpc!')
     }
