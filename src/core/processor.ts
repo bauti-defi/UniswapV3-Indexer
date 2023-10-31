@@ -27,6 +27,15 @@ const rpcURL = (): string => {
     }
 }
 
+const networkPollRate = (): number => {
+    switch(chainId()){
+        case 1: return 10000
+        case 10: return 500
+        case 42161: return 500
+        default: throw new Error('Unknown network for rpc!')
+    }
+}
+
 /**
  * 
  * url: rpc endpoint
@@ -59,7 +68,7 @@ export const processor = new EvmBatchProcessor()
         archive: lookupArchive(networkName(), {type: 'EVM'}),
         chain: networkRPC()
     })
-    // .setChainPollInterval(10000)
+    .setChainPollInterval(networkPollRate())
     .setFields({
             log: {
                 topics: true,
