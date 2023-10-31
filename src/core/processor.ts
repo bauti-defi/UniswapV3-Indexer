@@ -44,10 +44,11 @@ const networkRPC = (): ChainRpc  => {
             rateLimit: 2
         }
         case 10: return rpcURL()
-        case 42161: return {
+        case 42161: 
+        return {
             url: rpcURL(),
-            rateLimit: 10, 
-            capacity:  10
+            rateLimit: 30, 
+            capacity:  30
         }
         default: throw new Error('Unknown network for rpc!')
     }
