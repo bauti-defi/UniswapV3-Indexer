@@ -27,29 +27,37 @@ const rpcURL = (): string => {
     }
 }
 
+const networkPollRate = (): number => {
+    switch(chainId()){
+        case 1: return 10000
+        case 10: return 500
+        case 42161: return 500
+        default: throw new Error('Unknown network for rpc!')
+    }
+}
+
 /**
  * 
  * url: rpc endpoint
- * maxBatchCallSize: max number of calls in a batch
- * rateLimit: number of requests per second
- * capacity: number of concuerrent connections
- * requestTimeout: timeout in seconds
+ * maxBatchCallSize: max number of calls in a batch, default 100
+ * rateLimit: number of requests per second, default is no limit
+ * capacity: number of concuerrent connections, default 10
+ * requestTimeout: timeout in seconds, default 30_000
  * 
  */
 const networkRPC = (): ChainRpc  => {
     switch(chainId()){
         case 1: return {
             url: rpcURL(),
-            maxBatchCallSize: 100,
             capacity: 5,
-            requestTimeout: 2
+            rateLimit: 2
         }
         case 10: return rpcURL()
-        case 42161: return {
+        case 42161: 
+        return {
             url: rpcURL(),
-            maxBatchCallSize: 10, // Arbitrum rpc providers have problems when this is too large
-            rateLimit: 2, 
-            capacity: 5 
+            rateLimit: 30, 
+            capacity:  30
         }
         default: throw new Error('Unknown network for rpc!')
     }
@@ -60,7 +68,7 @@ export const processor = new EvmBatchProcessor()
         archive: lookupArchive(networkName(), {type: 'EVM'}),
         chain: networkRPC()
     })
-    .setChainPollInterval(10000)
+    .setChainPollInterval(networkPollRate())
     .setFields({
             log: {
                 topics: true,
